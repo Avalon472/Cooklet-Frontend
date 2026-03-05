@@ -20,11 +20,19 @@ private val DarkColorScheme = darkColorScheme(
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = PrimaryTextLight,
+    primary = PrimaryContainer,
     secondary = PurpleGrey40,
     tertiary = Pink40,
     primaryContainer = PrimaryContainer,
-    background = Background
+    background = Background,
+
+    surface = Color.White,
+    onSurface = Color.Black,
+
+    onPrimary = Color.White,
+    onSecondary = Color.White,
+    onTertiary = Color.White,
+    onBackground = Color.Black
 
     /* Other default colors to override
     background = Color(0xFFFFFBFE),

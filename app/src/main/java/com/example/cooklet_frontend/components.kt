@@ -53,7 +53,7 @@ fun RecipeCard(navController: NavController, recipeId: String){
             Text("Chicken Alfredo and additional", Modifier.fillMaxHeight(0.3f)
                 .fillMaxWidth().background(MaterialTheme.colorScheme.tertiary).wrapContentHeight().padding(horizontal = 4.dp),
                 textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.primary,
+                color = MaterialTheme.colorScheme.onTertiary,
                 lineHeight = 25.sp,
                 fontSize = 25.sp,
                 overflow = TextOverflow.Ellipsis

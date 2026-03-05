@@ -1,20 +1,37 @@
 package com.example.cooklet_frontend
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Timer
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
@@ -103,8 +120,22 @@ fun RecipeDetailsPage(recipeId: String?){
 fun IngredientsPage(){
     Column(modifier = Modifier.fillMaxHeight().fillMaxWidth().padding(10.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        Row(modifier = Modifier.fillMaxWidth()){
+        Row(modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ){
             ItemSortDropdown()
+
+
+
+            Button(onClick = { /* Add new recipe ingredients TODO */ }) {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = "Add Recipe"
+                )
+                Spacer(modifier = Modifier.width(6.dp))
+                Text("Add Recipe")
+            }
         }
 
         IngredientItem(item = "Ground beef", quantity = 1, unit = "lbs")
@@ -115,15 +146,115 @@ fun IngredientsPage(){
 
 @Composable
 fun CreatePage(){
-    Column(modifier = Modifier
-        .fillMaxHeight()
-        .fillMaxWidth(),
-        verticalArrangement = Arrangement.SpaceEvenly,
-        horizontalAlignment = Alignment.CenterHorizontally) {
-        Text("Option 1")
-        Text("Option 2")
-        Text("Option 3")
+
+    var showManualDialog by remember { mutableStateOf(false)}
+
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(24.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = "Add Recipe",
+            style = MaterialTheme.typography.headlineMedium
+        )
+
+        Spacer(modifier = Modifier.height(32.dp))
+
+        OutlinedButton(
+            onClick = { showManualDialog = true },
+            border = BorderStroke(1.dp, Color.Black),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Create Manually")
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+        
+        OutlinedButton(
+            onClick = { /* Spoonacular Search: TODO */ },
+            border = BorderStroke(1.dp, Color.Black),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Search Recipe")
+        }
     }
+    
+    if (showManualDialog) {
+        ManualRecipeDialog(
+            onDismiss = { showManualDialog = false }
+        )
+    }
+}
+
+@Composable
+fun ManualRecipeDialog(onDismiss: () -> Unit) {
+    
+    var recipeName by remember { mutableStateOf("")}
+    var ingredients by remember { mutableStateOf("")}
+    var estimatedTime by remember { mutableStateOf("")}
+    var instructions by remember { mutableStateOf("")}
+    
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            Button(onClick = {
+                // input validation and save recipe TODO
+                onDismiss()
+            }) {
+                Text("Save Recipe")
+            }
+        },
+        dismissButton = {
+            OutlinedButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        },
+        title = { Text("Create Recipe") },
+        text = {
+            Column {
+
+                OutlinedTextField(
+                    value = recipeName,
+                    onValueChange = { recipeName = it },
+                    label = { Text("Recipe Name") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                OutlinedTextField(
+                    value = ingredients,
+                    onValueChange = { ingredients = it },
+                    label = { Text("Ingredients") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+
+                OutlinedTextField(
+                    value = estimatedTime,
+                    onValueChange = { estimatedTime = it },
+                    label = { Text("Estimated Time") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+
+                OutlinedTextField(
+                    value = instructions,
+                    onValueChange = { instructions = it },
+                    label = { Text("Instructions") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        }
+    )
 }
 
 @Composable
