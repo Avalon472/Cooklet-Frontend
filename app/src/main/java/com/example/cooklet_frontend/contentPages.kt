@@ -15,10 +15,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -33,19 +33,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
-import coil.compose.rememberAsyncImagePainter
 
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun RecipePage(navController: NavController) {
     val url = "https://picsum.photos/600/400"
-    val painter = rememberAsyncImagePainter(url)
 
     Column (modifier = Modifier
         .fillMaxWidth()
@@ -134,7 +133,7 @@ fun IngredientsPage(){
                     contentDescription = "Add Recipe"
                 )
                 Spacer(modifier = Modifier.width(6.dp))
-                Text("Add Recipe")
+                Text("Add Recipe Ingredients", textAlign = TextAlign.Center)
             }
         }
 
@@ -148,6 +147,12 @@ fun IngredientsPage(){
 fun CreatePage(){
 
     var showManualDialog by remember { mutableStateOf(false)}
+    var showSearchDialog by remember {mutableStateOf(false)}
+
+    var recipeName by remember { mutableStateOf("")}
+    var ingredients by remember { mutableStateOf("")}
+    var estimatedTime by remember { mutableStateOf("")}
+    var instructions by remember { mutableStateOf("")}
 
 
     Column(
@@ -175,7 +180,7 @@ fun CreatePage(){
         Spacer(modifier = Modifier.height(16.dp))
         
         OutlinedButton(
-            onClick = { /* Spoonacular Search: TODO */ },
+            onClick = { showSearchDialog = true },
             border = BorderStroke(1.dp, Color.Black),
             modifier = Modifier.fillMaxWidth()
         ) {
@@ -185,18 +190,35 @@ fun CreatePage(){
     
     if (showManualDialog) {
         ManualRecipeDialog(
-            onDismiss = { showManualDialog = false }
+            onDismiss = { showManualDialog = false },
+            recipeName,
+            ingredients,
+            estimatedTime,
+            instructions
+        )
+    }
+    if (showSearchDialog) {
+        SearchRecipeDialog(
+            onDismiss = { showSearchDialog = false },
+            onSearch = {recipe:Array<String> ->
+                recipeName = recipe[0]
+                ingredients = recipe[1]
+                estimatedTime = recipe[2]
+                instructions = recipe[3]
+                showManualDialog = true
+            }
         )
     }
 }
 
 @Composable
-fun ManualRecipeDialog(onDismiss: () -> Unit) {
+fun ManualRecipeDialog(onDismiss: () -> Unit, recipeName: String = "", ingredients: String = "",
+                       estimatedTime: String = "", instructions: String = "") {
     
-    var recipeName by remember { mutableStateOf("")}
-    var ingredients by remember { mutableStateOf("")}
-    var estimatedTime by remember { mutableStateOf("")}
-    var instructions by remember { mutableStateOf("")}
+    var recipeName by remember { mutableStateOf(recipeName)}
+    var ingredients by remember { mutableStateOf(ingredients)}
+    var estimatedTime by remember { mutableStateOf(estimatedTime)}
+    var instructions by remember { mutableStateOf(instructions)}
     
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -258,6 +280,39 @@ fun ManualRecipeDialog(onDismiss: () -> Unit) {
 }
 
 @Composable
-fun ProfilePage(){
-    Text("Profile page goes here")
+fun SearchRecipeDialog(onDismiss: () -> Unit, onSearch: (Array<String>) -> Unit){
+    var query by remember { mutableStateOf("")}
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            Button(onClick = {
+                // input validation and save recipe TODO
+                onSearch(arrayOf("Lasagna", "Pasta, Tomato Sauce", "45min", "Bake in oven"))
+                onDismiss()
+
+            }) {
+                Text("Search Spoonacular")
+            }
+        },
+        dismissButton = {
+            OutlinedButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        },
+        title = { Text("Search for a Recipe") },
+        text = {
+            Column {
+
+                OutlinedTextField(
+                    value = query,
+                    onValueChange = { query = it },
+                    label = { Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = "Search Recipe"
+                    ) },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        }
+    )
 }
