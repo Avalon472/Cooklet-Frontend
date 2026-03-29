@@ -1,6 +1,7 @@
 package com.example.cooklet_frontend.api
 
 import com.example.cooklet_frontend.models.Recipe
+import com.example.cooklet_frontend.models.personalRecipe
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -12,6 +13,10 @@ interface ApiService {
     @GET("search")
     suspend fun search(
         @Query("query") query: String
+    ): Response<List<Recipe>>
+
+    @GET("all")
+    suspend fun all(
     ): Response<List<Recipe>>
 }
 

@@ -38,4 +38,28 @@ class RecipeViewModel : ViewModel() {
             }
         }
     }
+
+    fun fetchRecipes(){
+        viewModelScope.launch {
+
+            _state.value = "Loading..."
+
+            try {
+                val response = RetrofitInstance.api.all()
+
+                if (response.isSuccessful) {
+                    val body = response.body()
+
+                    _recipes.value = body ?: emptyList()
+                    _state.value = "Success (${_recipes.value.size} results)"
+
+                } else {
+                    _state.value = "Error: ${response.code()}"
+                }
+
+            } catch (e: Exception) {
+                _state.value = "Exception: ${e.message}"
+            }
+        }
+    }
 }

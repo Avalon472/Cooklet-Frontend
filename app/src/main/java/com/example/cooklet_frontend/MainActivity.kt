@@ -56,9 +56,15 @@ fun RecipeScreen(viewModel: RecipeViewModel = viewModel()) {
     Column {
 
         Button(onClick = {
-            viewModel.searchRecipes("mongolian beef")
+            viewModel.searchRecipes("chicken soup")
         }) {
             Text("Search Recipes")
+        }
+
+        Button(onClick = {
+            viewModel.fetchRecipes()
+        }) {
+            Text("Fetch Recipes")
         }
 
         Text(state.value)
