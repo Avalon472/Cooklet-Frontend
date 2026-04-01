@@ -62,4 +62,25 @@ class RecipeViewModel : ViewModel() {
             }
         }
     }
+
+    fun createRecipe(recipe: Recipe) {
+        viewModelScope.launch {
+
+            _state.value = "Creating Recipe..."
+
+            try {
+                val response = RetrofitInstance.api.createRecipe(recipe)
+
+                if (response.isSuccessful) {
+                    _state.value = "Recipe created!"
+
+                    fetchRecipes()
+                } else {
+                    _state.value = "Error: ${response.code()}"
+                }
+            } catch (e: Exception) {
+                _state.value = "Exception: ${e.message}"
+            }
+        }
+    }
 }

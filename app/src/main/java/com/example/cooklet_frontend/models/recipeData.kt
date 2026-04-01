@@ -18,20 +18,7 @@ data class Recipe(
     val analyzedInstructions: List<Instruction>,
     val _id: String?
 )
-data class personalRecipe(
-    val id: Int?,
-    val image: String,
-    val title: String,
-    val readyInMinutes: Int?,
-    val servings: Int?,
-    val sourceURL: String,
-    val recipeTags: Tags?,
-    val pricePerServing: Double?,
-    val ingredients: List<Ingredient>,
-    val summary: String,
-    val instructions: List<Instruction>,
-    val _id: String?
-)
+
 data class Tags(
     val vegetarian: Boolean = false,
     val vegan: Boolean = false,

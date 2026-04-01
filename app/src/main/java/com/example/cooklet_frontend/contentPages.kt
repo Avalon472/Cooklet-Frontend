@@ -11,20 +11,28 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -39,31 +47,53 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
-
+import com.example.cooklet_frontend.api.RecipeViewModel
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateListOf
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.room3.Delete
+import com.example.cooklet_frontend.models.Ingredient
+import com.example.cooklet_frontend.models.Instruction
+import com.example.cooklet_frontend.models.Measurement
+import com.example.cooklet_frontend.models.Measures
+import com.example.cooklet_frontend.models.Recipe
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun RecipePage(navController: NavController) {
-    val url = "https://picsum.photos/600/400"
+fun RecipePage(navController: NavController, viewModel: RecipeViewModel) {
 
-    Column (modifier = Modifier
-        .fillMaxWidth()
-        .fillMaxHeight(),
-        horizontalAlignment = Alignment.CenterHorizontally) {
-        Row(modifier = Modifier.fillMaxWidth()){
-            ItemSortDropdown()
-        }
-        FlowRow(modifier = Modifier
-            .fillMaxHeight()
-            .fillMaxWidth()
-            .padding(horizontal = 20.dp, vertical = 10.dp),
-            horizontalArrangement = Arrangement.spacedBy(20.dp),
-            verticalArrangement = Arrangement.spacedBy(20.dp)) {
-            RecipeCard(navController, "123")
-            RecipeCard(navController, "456")
-            RecipeCard(navController, "789")
+    val recipes by viewModel.recipes.collectAsState()
+
+    LaunchedEffect(Unit) {
+        viewModel.fetchRecipes()
+    }
+
+    LazyColumn {
+        items(recipes) { recipe ->
+            RecipeCard(navController, recipe)
         }
     }
+
+//    val url = "https://picsum.photos/600/400"
+//
+//    Column (modifier = Modifier
+//        .fillMaxWidth()
+//        .fillMaxHeight(),
+//        horizontalAlignment = Alignment.CenterHorizontally) {
+//        Row(modifier = Modifier.fillMaxWidth()){
+//            ItemSortDropdown()
+//        }
+//        FlowRow(modifier = Modifier
+//            .fillMaxHeight()
+//            .fillMaxWidth()
+//            .padding(horizontal = 20.dp, vertical = 10.dp),
+//            horizontalArrangement = Arrangement.spacedBy(20.dp),
+//            verticalArrangement = Arrangement.spacedBy(20.dp)) {
+//            RecipeCard(navController, "123")
+//            RecipeCard(navController, "456")
+//            RecipeCard(navController, "789")
+//        }
+//    }
 }
 
 @Composable
@@ -144,16 +174,13 @@ fun IngredientsPage(){
 }
 
 @Composable
-fun CreatePage(){
+fun CreatePage(viewModel: RecipeViewModel){
 
-    var showManualDialog by remember { mutableStateOf(false)}
+    var showEditorDialog by remember { mutableStateOf(false)}
     var showSearchDialog by remember {mutableStateOf(false)}
 
-    var recipeName by remember { mutableStateOf("")}
-    var ingredients by remember { mutableStateOf("")}
-    var estimatedTime by remember { mutableStateOf("")}
-    var instructions by remember { mutableStateOf("")}
 
+    var selectedRecipe by remember { mutableStateOf<Recipe?>(null) }
 
     Column(
         modifier = Modifier
@@ -170,7 +197,10 @@ fun CreatePage(){
         Spacer(modifier = Modifier.height(32.dp))
 
         OutlinedButton(
-            onClick = { showManualDialog = true },
+            onClick = {
+                selectedRecipe = null
+                showEditorDialog = true
+                      },
             border = BorderStroke(1.dp, Color.Black),
             modifier = Modifier.fillMaxWidth()
         ) {
@@ -188,108 +218,235 @@ fun CreatePage(){
         }
     }
     
-    if (showManualDialog) {
-        ManualRecipeDialog(
-            onDismiss = { showManualDialog = false },
-            recipeName,
-            ingredients,
-            estimatedTime,
-            instructions
+    if (showEditorDialog) {
+        RecipeEditorDialog(
+            initialRecipe = selectedRecipe,
+            onDismiss = { showEditorDialog = false },
+            onSubmit = {
+                viewModel.createRecipe(it)
+                showEditorDialog = false
+            }
         )
     }
     if (showSearchDialog) {
         SearchRecipeDialog(
             onDismiss = { showSearchDialog = false },
-            onSearch = {recipe:Array<String> ->
-                recipeName = recipe[0]
-                ingredients = recipe[1]
-                estimatedTime = recipe[2]
-                instructions = recipe[3]
-                showManualDialog = true
+            onSearch = { recipe ->
+                selectedRecipe = recipe
+                showSearchDialog = false
+                showEditorDialog = true
             }
         )
     }
 }
 
 @Composable
-fun ManualRecipeDialog(onDismiss: () -> Unit, recipeName: String = "", ingredients: String = "",
-                       estimatedTime: String = "", instructions: String = "") {
-    
-    var recipeName by remember { mutableStateOf(recipeName)}
-    var ingredients by remember { mutableStateOf(ingredients)}
-    var estimatedTime by remember { mutableStateOf(estimatedTime)}
-    var instructions by remember { mutableStateOf(instructions)}
-    
+fun RecipeEditorDialog(
+    initialRecipe: Recipe? = null,
+    onDismiss: () -> Unit,
+    onSubmit: (Recipe) -> Unit
+) {
+    // Use mutableStateListOf for dynamic lists
+    val ingredients = remember { mutableStateListOf<String>() }
+    val instructions = remember { mutableStateListOf<String>() }
+    var recipeName by remember { mutableStateOf(initialRecipe?.title ?: "") }
+    var estimatedTime by remember { mutableStateOf(initialRecipe?.readyInMinutes?.toString() ?: "") }
+
+
+    // Pre-fill if editing an existing recipe
+    LaunchedEffect(initialRecipe) {
+        initialRecipe?.let { recipe ->
+            ingredients.clear()
+            ingredients.addAll(recipe.extendedIngredients.map { it.name })
+            instructions.clear()
+            instructions.addAll(recipe.analyzedInstructions.map { it.step })
+            recipeName = initialRecipe?.title ?: ""
+            estimatedTime = initialRecipe?.readyInMinutes?.toString() ?: ""
+        }
+        if (ingredients.isEmpty()) ingredients.add("")  // always have at least 1 box
+        if (instructions.isEmpty()) instructions.add("")
+    }
+
+
     AlertDialog(
         onDismissRequest = onDismiss,
+        title = { Text("Create Recipe") },
+        text = {
+            // Scrollable Column for all inputs
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = 0.dp, max = 400.dp) // max height, will scroll
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                // Recipe name
+                OutlinedTextField(
+                    value = recipeName,
+                    onValueChange = { recipeName = it },
+                    label = { Text("Recipe Name*") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                // Estimated time
+                OutlinedTextField(
+                    value = estimatedTime,
+                    onValueChange = { estimatedTime = it },
+                    label = { Text("Estimated Time (minutes)") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Ingredients dynamic list
+                Text("Ingredients*")
+                ingredients.forEachIndexed { index, ingredient ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        OutlinedTextField(
+                            value = ingredient,
+                            onValueChange = { ingredients[index] = it },
+                            label = { Text("Ingredient ${index + 1}") },
+                            modifier = Modifier.weight(1f)
+                        )
+                        IconButton(onClick = {
+                            ingredients.removeAt(index)
+                        }) {
+                            Icon(
+                                imageVector = Icons.Default.Delete,
+                                contentDescription = "Remove Ingredient"
+                            )
+                        }
+                    }
+                }
+
+                Button(onClick = { ingredients.add("") }) {
+                    Icon(imageVector = Icons.Default.Add, contentDescription = "Add Ingredient")
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text("Add Ingredient")
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Instructions dynamic list
+                Text("Instructions*")
+                instructions.forEachIndexed { index, step ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        OutlinedTextField(
+                            value = step,
+                            onValueChange = { instructions[index] = it },
+                            label = { Text("Step ${index + 1}") },
+                            modifier = Modifier.weight(1f)
+                        )
+                        IconButton(onClick = { instructions.removeAt(index) }) {
+                            Icon(
+                                imageVector = Icons.Default.Delete,
+                                contentDescription = "Remove Step"
+                            )
+                        }
+                    }
+                }
+
+                Button(onClick = { instructions.add("") }) {
+                    Icon(imageVector = Icons.Default.Add, contentDescription = "Add Step")
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text("Add Step")
+                }
+            }
+        },
         confirmButton = {
             Button(onClick = {
-                // input validation and save recipe TODO
-                onDismiss()
+                // TODO: Add validation for required fields
+                val baseRecipe = initialRecipe ?: Recipe(
+                    id = 0,
+                    title = "",
+                    readyInMinutes = null,
+                    extendedIngredients = emptyList(),
+                    analyzedInstructions = emptyList(),
+                    sourceURL = "",
+                    image = "",
+                    recipeTags = null,
+                    servings = null,
+                    summary = "",
+                    pricePerServing = null,
+                    _id = null
+                )
+
+                val recipe = baseRecipe.copy(
+                    title = recipeName,
+                    readyInMinutes = estimatedTime.toIntOrNull(),
+                    extendedIngredients = ingredients.filter { it.isNotBlank() }
+                        .mapIndexed { i, name ->
+                            Ingredient(
+                                id = i,
+                                name = name,
+                                amount = 1.0,
+                                unit = "",
+                                aisle = null,
+                                measures = Measures(
+                                    us = Measurement(1.0, "", null),
+                                    metric = Measurement(1.0, "", null),
+                                    _id = null
+                                ),
+                                _id = null
+                            )
+                        },
+                    analyzedInstructions = instructions.filter { it.isNotBlank() }
+                        .mapIndexed { i, step ->
+                            Instruction(
+                                number = i + 1,
+                                step = step,
+                                ingredients = listOf(),
+                                equipment = listOf(),
+                                _id = null
+                            )
+                        }
+                )
+                onSubmit(recipe)
             }) {
                 Text("Save Recipe")
             }
         },
         dismissButton = {
-            OutlinedButton(onClick = onDismiss) {
-                Text("Cancel")
-            }
-        },
-        title = { Text("Create Recipe") },
-        text = {
-            Column {
-
-                OutlinedTextField(
-                    value = recipeName,
-                    onValueChange = { recipeName = it },
-                    label = { Text("Recipe Name") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                OutlinedTextField(
-                    value = ingredients,
-                    onValueChange = { ingredients = it },
-                    label = { Text("Ingredients") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-
-                OutlinedTextField(
-                    value = estimatedTime,
-                    onValueChange = { estimatedTime = it },
-                    label = { Text("Estimated Time") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-
-                OutlinedTextField(
-                    value = instructions,
-                    onValueChange = { instructions = it },
-                    label = { Text("Instructions") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
+            OutlinedButton(onClick = onDismiss) { Text("Cancel") }
         }
     )
 }
 
 @Composable
-fun SearchRecipeDialog(onDismiss: () -> Unit, onSearch: (Array<String>) -> Unit){
+fun SearchRecipeDialog(
+    onDismiss: () -> Unit,
+    onSearch: (Recipe) -> Unit
+) {
     var query by remember { mutableStateOf("")}
+
     AlertDialog(
         onDismissRequest = onDismiss,
         confirmButton = {
             Button(onClick = {
                 // input validation and save recipe TODO
-                onSearch(arrayOf("Lasagna", "Pasta, Tomato Sauce", "45min", "Bake in oven"))
-                onDismiss()
+                val fakeRecipe = Recipe(
+                    id = null,
+                    image = "",
+                    title = "Test Recipe",
+                    readyInMinutes = 30,
+                    servings = null,
+                    sourceURL = "",
+                    recipeTags = null,
+                    pricePerServing = null,
+                    extendedIngredients = emptyList(),
+                    summary = "Sample summary",
+                    analyzedInstructions = emptyList(),
+                    _id = null
+                )
 
+
+                onSearch(fakeRecipe)
             }) {
                 Text("Search Spoonacular")
             }

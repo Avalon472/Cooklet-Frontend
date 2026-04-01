@@ -29,6 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -37,6 +38,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.cooklet_frontend.api.RecipeViewModel
 
 @Composable
 fun AppContent(){
@@ -173,7 +175,9 @@ fun AppFooter(navController: NavController){
 fun AppBody(navController: NavHostController){
         NavHost(navController, startDestination = "Recipes") {
 
-        composable("Recipes") { RecipePage(navController) }
+        composable("Recipes") {
+            val viewModel: RecipeViewModel = viewModel()
+            RecipePage(navController, viewModel) }
 
         composable(
             route = "RecipeDetails/{recipeId}",
@@ -186,6 +190,9 @@ fun AppBody(navController: NavHostController){
             }
 
         composable("Ingredients") { IngredientsPage() }
-        composable("Create") { CreatePage() }
+        composable("Create") {
+            val viewModel: RecipeViewModel = viewModel()
+            CreatePage(viewModel)
+        }
     }
 }

@@ -42,23 +42,34 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
+import com.example.cooklet_frontend.models.Recipe
 
 @Composable
-fun RecipeCard(navController: NavController, recipeId: String){
-    Card(elevation = CardDefaults.cardElevation(10.dp),
-        onClick = {navController.navigate("RecipeDetails/$recipeId")}) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally,
+fun RecipeCard(navController: NavController, recipe: Recipe){
+    Card(
+        elevation = CardDefaults.cardElevation(10.dp),
+        onClick = { navController.navigate("RecipeDetails/${recipe._id}")}
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
-            modifier = Modifier.size(175.dp)) {
-            Text("Chicken Alfredo and additional", Modifier.fillMaxHeight(0.3f)
-                .fillMaxWidth().background(MaterialTheme.colorScheme.tertiary).wrapContentHeight().padding(horizontal = 4.dp),
+            modifier = Modifier.size(175.dp)
+        ) {
+            Text(
+                recipe.title,
+                Modifier.fillMaxHeight(0.3f)
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.tertiary)
+                    .wrapContentHeight()
+                    .padding(horizontal = 4.dp),
                 textAlign = TextAlign.Center,
                 color = MaterialTheme.colorScheme.onTertiary,
                 lineHeight = 25.sp,
                 fontSize = 25.sp,
                 overflow = TextOverflow.Ellipsis
              )
-            AsyncImage(model = "https://picsum.photos/600/400",
+            AsyncImage(
+                model = recipe.image,
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxHeight().fillMaxWidth()

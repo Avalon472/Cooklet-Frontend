@@ -23,10 +23,10 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-//            CookletFrontendTheme {
-//                AppContent()
-//            }
-            RecipeScreen()
+            CookletFrontendTheme {
+                AppContent()
+            }
+            //RecipeScreen()
         }
     }
 }
