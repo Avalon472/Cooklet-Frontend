@@ -1,53 +1,45 @@
 package com.example.cooklet_frontend.models
 
-data class Recipe(
-    val id: Int?,
+data class newRecipePayload (
     val image: String,
     val title: String,
-    val readyInMinutes: Int?,
-    val servings: Int?,
+    val readyInMinutes: Int,
+    val servings: Int,
     val sourceURL: String,
-    val recipeTags: Tags?,
-    val pricePerServing: Double?,
-    val extendedIngredients: List<Ingredient>,
+    val recipeTags: newRecipeTags?,
+    val pricePerServing: Double,
+    val extendedIngredients: List<newRecipeIngredient>,
     val summary: String,
-    val analyzedInstructions: List<Instruction>,
-    val _id: String?
+    val analyzedInstructions: List<newRecipeInstruction>,
 )
-
-data class Tags(
+data class newRecipeTags(
     val vegetarian: Boolean = false,
     val vegan: Boolean = false,
     val glutenFree: Boolean = false,
     val dairyFree: Boolean = false,
     val veryHealthy: Boolean = false,
     val cheap: Boolean = false,
-    val _id: String?
 )
-data class Ingredient(
+data class newRecipeIngredient(
     val id: Int?,
     val aisle: String?,
     val name: String,
     val amount: Double,
     val unit: String,
-    val measures: Measures,
-    val _id: String?
+    val measures: newRecipeMeasures,
 )
-data class Measures(
-    val us: Measurement,
-    val metric: Measurement,
-    val _id: String?
+data class newRecipeMeasures(
+    val us: newRecipeMeasurement?,
+    val metric: newRecipeMeasurement?,
 )
 
-data class Measurement(
+data class newRecipeMeasurement(
     val amount: Double,
     val unit: String,
-    val _id: String?
 )
-data class Instruction(
+data class newRecipeInstruction(
     val number: Int,
     val step: String,
     val ingredients: List<String>,
     val equipment: List<String>,
-    val _id: String?
 )

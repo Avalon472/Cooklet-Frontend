@@ -1,6 +1,7 @@
 package com.example.cooklet_frontend.api
 
 import com.example.cooklet_frontend.models.Recipe
+import com.example.cooklet_frontend.models.newRecipePayload
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -22,13 +23,13 @@ interface ApiService {
 
     @POST("create")
     suspend fun createRecipe(
-        @Body recipe: Recipe
+        @Body recipe: newRecipePayload
     ): Response<Recipe>
 }
 
 object RetrofitInstance {
 
-    private const val BASE_URL = "http://100.101.28.36:5000/api/recipe/"
+    private const val BASE_URL = "http://10.0.2.2:5000/api/recipe/"//"http://100.101.28.36:5000/api/recipe/"
 
     val api: ApiService by lazy {
         Retrofit.Builder()

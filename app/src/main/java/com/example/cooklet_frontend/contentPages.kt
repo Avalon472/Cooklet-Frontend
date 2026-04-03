@@ -51,12 +51,19 @@ import com.example.cooklet_frontend.api.RecipeViewModel
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.room.util.copy
 import androidx.room3.Delete
 import com.example.cooklet_frontend.models.Ingredient
 import com.example.cooklet_frontend.models.Instruction
 import com.example.cooklet_frontend.models.Measurement
 import com.example.cooklet_frontend.models.Measures
 import com.example.cooklet_frontend.models.Recipe
+import com.example.cooklet_frontend.models.newRecipeIngredient
+import com.example.cooklet_frontend.models.newRecipeInstruction
+import com.example.cooklet_frontend.models.newRecipeMeasurement
+import com.example.cooklet_frontend.models.newRecipeMeasures
+import com.example.cooklet_frontend.models.newRecipePayload
+import com.example.cooklet_frontend.models.newRecipeTags
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -220,7 +227,7 @@ fun CreatePage(viewModel: RecipeViewModel){
     
     if (showEditorDialog) {
         RecipeEditorDialog(
-            initialRecipe = selectedRecipe,
+            initialRecipe = convertRecipeToPayload(selectedRecipe ?: null),
             onDismiss = { showEditorDialog = false },
             onSubmit = {
                 viewModel.createRecipe(it)
@@ -242,9 +249,9 @@ fun CreatePage(viewModel: RecipeViewModel){
 
 @Composable
 fun RecipeEditorDialog(
-    initialRecipe: Recipe? = null,
+    initialRecipe: newRecipePayload? = null,
     onDismiss: () -> Unit,
-    onSubmit: (Recipe) -> Unit
+    onSubmit: (newRecipePayload) -> Unit
 ) {
     // Use mutableStateListOf for dynamic lists
     val ingredients = remember { mutableStateListOf<String>() }
@@ -362,50 +369,73 @@ fun RecipeEditorDialog(
         confirmButton = {
             Button(onClick = {
                 // TODO: Add validation for required fields
-                val baseRecipe = initialRecipe ?: Recipe(
-                    id = 0,
+                val baseRecipe = initialRecipe ?: newRecipePayload(
                     title = "",
-                    readyInMinutes = null,
+                    readyInMinutes = 0,
                     extendedIngredients = emptyList(),
                     analyzedInstructions = emptyList(),
                     sourceURL = "",
                     image = "",
                     recipeTags = null,
-                    servings = null,
+                    servings = 0,
                     summary = "",
-                    pricePerServing = null,
-                    _id = null
+                    pricePerServing = 0.0,
                 )
 
                 val recipe = baseRecipe.copy(
                     title = recipeName,
-                    readyInMinutes = estimatedTime.toIntOrNull(),
-                    extendedIngredients = ingredients.filter { it.isNotBlank() }
-                        .mapIndexed { i, name ->
-                            Ingredient(
-                                id = i,
-                                name = name,
-                                amount = 1.0,
-                                unit = "",
-                                aisle = null,
-                                measures = Measures(
-                                    us = Measurement(1.0, "", null),
-                                    metric = Measurement(1.0, "", null),
-                                    _id = null
-                                ),
-                                _id = null
+                    image = "https://preview.redd.it/test-image-v0-w3kr4m2fi3111.png?width=640&crop=smart&auto=webp&s=fc50cbcaabbb33773dfe626aadedeef4c8a3f58e",
+                    summary = "Baby's first recipe",
+                    sourceURL = "spoonacular API",
+                    readyInMinutes = estimatedTime.toIntOrNull() ?: 0,
+//                    extendedIngredients = ingredients.filter { it.isNotBlank() }
+//                        .mapIndexed { i, name ->
+//                            newRecipeIngredient(
+//                                id = i,
+//                                name = name,
+//                                amount = 1.0,
+//                                unit = "",
+//                                aisle = null,
+//                                measures = newRecipeMeasures(
+//                                    us = newRecipeMeasurement(1.0, ""),
+//                                    metric = newRecipeMeasurement(1.0, ""),
+//                                ),
+//                            )
+//                        },
+//                    analyzedInstructions = instructions.filter { it.isNotBlank() }
+//                        .mapIndexed { i, step ->
+//                            newRecipeInstruction(
+//                                number = i + 1,
+//                                step = step,
+//                                ingredients = listOf(),
+//                                equipment = listOf(),
+//                            )
+//                        }
+                    extendedIngredients = listOf(newRecipeIngredient(
+                        id= 5,
+                        aisle = "Walmart 24A",
+                        name = "Stew Meat",
+                        amount = 2.2,
+                        unit = "lbs",
+                        measures = newRecipeMeasures(
+                            us = newRecipeMeasurement(
+                                amount = 2.2,
+                                unit = "lbs"
+                            ),
+                            metric = newRecipeMeasurement(
+                                amount = 4.5,
+                                unit = "kgs"
                             )
-                        },
-                    analyzedInstructions = instructions.filter { it.isNotBlank() }
-                        .mapIndexed { i, step ->
-                            Instruction(
-                                number = i + 1,
-                                step = step,
-                                ingredients = listOf(),
-                                equipment = listOf(),
-                                _id = null
-                            )
-                        }
+                        )
+
+                    )
+                    ),
+                    analyzedInstructions = listOf(newRecipeInstruction(
+                        number = 1,
+                        step = "Pound meat thoroughly",
+                        ingredients = listOf("Stew Meat"),
+                        equipment = emptyList()
+                    ))
                 )
                 onSubmit(recipe)
             }) {
@@ -472,4 +502,52 @@ fun SearchRecipeDialog(
             }
         }
     )
+}
+
+fun convertRecipeToPayload(recipe: Recipe?): newRecipePayload? {
+    val recipe = recipe ?: return null
+
+    val tags = newRecipeTags(
+        vegetarian = recipe.recipeTags?.vegetarian ?: false,
+        vegan = recipe.recipeTags?.vegan ?: false,
+        glutenFree = recipe.recipeTags?.glutenFree ?: false,
+        dairyFree = recipe.recipeTags?.dairyFree ?: false,
+        veryHealthy = recipe.recipeTags?.veryHealthy ?: false,
+        cheap = recipe.recipeTags?.cheap ?: false,
+    )
+    val ingredients = recipe.extendedIngredients.map { ingredient -> newRecipeIngredient(
+        ingredient.id,
+        ingredient.aisle,
+        ingredient.name,
+        ingredient.amount,
+        ingredient.unit,
+        newRecipeMeasures(
+            us = newRecipeMeasurement(
+                ingredient.measures.us.amount,
+                ingredient.measures.us.unit
+            ),
+            metric = newRecipeMeasurement(
+                ingredient.measures.metric.amount,
+                ingredient.measures.metric.unit
+            )
+        )) }
+
+    val instructions = recipe.analyzedInstructions.map { instruction -> newRecipeInstruction(
+        number = instruction.number,
+        step = instruction.step,
+        ingredients = instruction.ingredients,
+        equipment = instruction.equipment
+    ) }
+
+    return newRecipePayload(title = recipe.title,
+        image = recipe.image,
+        readyInMinutes = recipe.readyInMinutes ?: 0,
+        servings = recipe.servings ?: 0,
+        sourceURL = recipe.sourceURL,
+        recipeTags = tags,
+        pricePerServing = recipe.pricePerServing ?: 0.0,
+        extendedIngredients = ingredients,
+        summary = recipe.summary,
+        analyzedInstructions = instructions
+        )
 }

@@ -3,17 +3,45 @@ package com.example.cooklet_frontend.api
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.cooklet_frontend.models.Recipe
+import com.example.cooklet_frontend.models.newRecipePayload
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class RecipeViewModel : ViewModel() {
 
+    private val defaultNewRecipe = newRecipePayload(image = "https://example.com",
+        title = "N/A",
+        readyInMinutes = 0,
+        servings = 0,
+        sourceURL = "N/A",
+        recipeTags = null,
+        pricePerServing = 0.0,
+        extendedIngredients = emptyList(),
+        summary = "N/A",
+        analyzedInstructions = emptyList()
+        )
+
     private val _state = MutableStateFlow("Idle")
     val state: StateFlow<String> = _state
 
     private val _recipes = MutableStateFlow<List<Recipe>>(emptyList())
     val recipes: StateFlow<List<Recipe>> = _recipes
+
+//    private val _newRecipe = MutableStateFlow(newRecipePayload(
+//        image = "https://example.com",
+//        title = "N/A",
+//        readyInMinutes = 0,
+//        servings = 0,
+//        sourceURL = "N/A",
+//        recipeTags = null,
+//        pricePerServing = 0.0,
+//        extendedIngredients = emptyList(),
+//        summary = "N/A",
+//        analyzedInstructions = emptyList()
+//    ))
+//
+//    val newRecipe: StateFlow<newRecipePayload> = _newRecipe
 
     fun searchRecipes(query: String) {
         viewModelScope.launch {
@@ -63,7 +91,7 @@ class RecipeViewModel : ViewModel() {
         }
     }
 
-    fun createRecipe(recipe: Recipe) {
+    fun createRecipe(recipe: newRecipePayload) {
         viewModelScope.launch {
 
             _state.value = "Creating Recipe..."
