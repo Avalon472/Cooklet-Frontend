@@ -1,4 +1,4 @@
-package com.example.cooklet_frontend.ui.theme
+package com.example.cooklet_frontend.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

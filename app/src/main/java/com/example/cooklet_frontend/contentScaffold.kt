@@ -39,6 +39,8 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.cooklet_frontend.api.RecipeViewModel
+import com.example.cooklet_frontend.api.SearchResultViewModel
+import com.example.cooklet_frontend.pages.CreatePage
 
 @Composable
 fun AppContent(){
@@ -192,7 +194,8 @@ fun AppBody(navController: NavHostController){
         composable("Ingredients") { IngredientsPage() }
         composable("Create") {
             val viewModel: RecipeViewModel = viewModel()
-            CreatePage(viewModel)
+            val searchModel: SearchResultViewModel = viewModel()
+            CreatePage(viewModel, searchModel)
         }
     }
 }

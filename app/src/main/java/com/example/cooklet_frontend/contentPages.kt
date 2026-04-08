@@ -1,6 +1,5 @@
 package com.example.cooklet_frontend
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -10,32 +9,21 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Timer
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
@@ -44,9 +32,6 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.cooklet_frontend.api.RecipeViewModel
-import com.example.cooklet_frontend.models.Recipe
-import com.example.cooklet_frontend.ui.theme.RecipeEditorDialog
-import com.example.cooklet_frontend.utils.convertRecipeToPayload
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -57,23 +42,23 @@ fun RecipePage(navController: NavController, viewModel: RecipeViewModel) {
     LaunchedEffect(Unit) {
         viewModel.fetchRecipes()
     }
-//    LazyColumn {
-//        items(recipes) { recipe ->
-//            RecipeCard(navController, recipe)
-//        }
-//    }
-    FlowRow(
-        modifier = Modifier.fillMaxWidth().padding(16.dp),
-        horizontalArrangement = Arrangement.spacedBy(
-            16.dp,
-            alignment = Alignment.CenterHorizontally
-        ),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
-    ) {
-        recipes.forEach { recipe ->
-            RecipeCard(navController, recipe)
+    LazyColumn(modifier = Modifier.fillMaxSize()) {
+        items(1) {
+            FlowRow(
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(
+                16.dp,
+                alignment = Alignment.CenterHorizontally
+            ),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+            recipes.forEach { recipe ->
+                RecipeCard(navController, recipe)
+            }
+        }
         }
     }
+
 }
 
 @Composable
@@ -151,130 +136,6 @@ fun IngredientsPage(){
         IngredientItem("Spaghetti", 2, "lbs")
         IngredientItem("Heavy cream", 3, "quarts")
     }
-}
-
-@Composable
-fun CreatePage(viewModel: RecipeViewModel){
-
-    var showEditorDialog by remember { mutableStateOf(false)}
-    var showSearchDialog by remember {mutableStateOf(false)}
-
-
-    var selectedRecipe by remember { mutableStateOf<Recipe?>(null) }
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(24.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            text = "Add Recipe",
-            style = MaterialTheme.typography.headlineMedium
-        )
-
-        Spacer(modifier = Modifier.height(32.dp))
-
-        OutlinedButton(
-            onClick = {
-                selectedRecipe = null
-                showEditorDialog = true
-                      },
-            border = BorderStroke(1.dp, Color.Black),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("Create Manually")
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-        
-        OutlinedButton(
-            onClick = { showSearchDialog = true },
-            border = BorderStroke(1.dp, Color.Black),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("Search Recipe")
-        }
-    }
-    
-    if (showEditorDialog) {
-        RecipeEditorDialog(
-            initialRecipe = convertRecipeToPayload(selectedRecipe),
-            onDismiss = { showEditorDialog = false },
-            onSubmit = {
-                viewModel.createRecipe(it)
-                showEditorDialog = false
-            }
-        )
-    }
-    if (showSearchDialog) {
-        SearchRecipeDialog(
-            onDismiss = { showSearchDialog = false },
-            onSearch = { recipe ->
-                selectedRecipe = recipe
-                showSearchDialog = false
-                showEditorDialog = true
-            }
-        )
-    }
-}
-
-
-@Composable
-fun SearchRecipeDialog(
-    onDismiss: () -> Unit,
-    onSearch: (Recipe) -> Unit
-) {
-    var query by remember { mutableStateOf("")}
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        confirmButton = {
-            Button(onClick = {
-                // input validation and save recipe TODO
-                val fakeRecipe = Recipe(
-                    id = null,
-                    image = "",
-                    title = "Test Recipe",
-                    readyInMinutes = 30,
-                    servings = null,
-                    sourceURL = "",
-                    recipeTags = null,
-                    pricePerServing = null,
-                    extendedIngredients = emptyList(),
-                    summary = "Sample summary",
-                    analyzedInstructions = emptyList(),
-                    _id = null
-                )
-
-
-                onSearch(fakeRecipe)
-            }) {
-                Text("Search Spoonacular")
-            }
-        },
-        dismissButton = {
-            OutlinedButton(onClick = onDismiss) {
-                Text("Cancel")
-            }
-        },
-        title = { Text("Search for a Recipe") },
-        text = {
-            Column {
-
-                OutlinedTextField(
-                    value = query,
-                    onValueChange = { query = it },
-                    label = { Icon(
-                        imageVector = Icons.Default.Search,
-                        contentDescription = "Search Recipe"
-                    ) },
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-        }
-    )
 }
 
 
