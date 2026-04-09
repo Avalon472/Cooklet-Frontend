@@ -29,7 +29,7 @@ interface ApiService {
 
 object RetrofitInstance {
 
-    private const val BASE_URL = "http://10.0.2.2:5000/api/recipe/"//"http://100.101.28.36:5000/api/recipe/"
+    private const val BASE_URL = "http://100.101.28.36:5000/api/recipe/"//"http://100.101.28.36:5000/api/recipe/"
 
     val api: ApiService by lazy {
         Retrofit.Builder()

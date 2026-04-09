@@ -188,7 +188,8 @@ fun AppBody(navController: NavHostController){
             )
             ) { backStackEntry ->
                 val recipeId = backStackEntry.arguments?.getString("recipeId")
-                RecipeDetailsPage(recipeId)
+                val viewModel: RecipeViewModel = viewModel()
+                RecipeDetailsPage(recipeId, viewModel)
             }
 
         composable("Ingredients") { IngredientsPage() }

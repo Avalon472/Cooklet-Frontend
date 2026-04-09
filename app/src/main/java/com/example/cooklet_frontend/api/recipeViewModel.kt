@@ -1,5 +1,6 @@
 package com.example.cooklet_frontend.api
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.cooklet_frontend.models.Recipe
@@ -53,6 +54,7 @@ class RecipeViewModel : ViewModel() {
 
                     _recipes.value = body ?: emptyList()
                     _state.value = "Success (${_recipes.value.size} results)"
+                    Log.d("SEARCH_DEBUG", _state.value)
 
                 } else {
                     _state.value = "Error: ${response.code()}"
