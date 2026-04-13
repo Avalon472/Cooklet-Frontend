@@ -40,7 +40,11 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.cooklet_frontend.api.RecipeViewModel
 import com.example.cooklet_frontend.api.SearchResultViewModel
+import com.example.cooklet_frontend.api.ingredientViewModel
 import com.example.cooklet_frontend.pages.CreatePage
+import com.example.cooklet_frontend.pages.IngredientsPage
+import com.example.cooklet_frontend.pages.RecipeDetailsPage
+import com.example.cooklet_frontend.pages.RecipePage
 
 @Composable
 fun AppContent(){
@@ -139,16 +143,6 @@ fun AppHeader(navController: NavController){
             }
         }
     }
-
-
-//    Row(modifier = Modifier.fillMaxHeight(0.1f).fillMaxWidth()
-//        .background(MaterialTheme.colorScheme.primaryContainer),
-//        verticalAlignment = Alignment.CenterVertically,
-//        horizontalArrangement = Arrangement.Center) {
-//        Text(text = routeText ?: "Cooklet",
-//            color = MaterialTheme.colorScheme.primary,
-//            fontSize = 35.sp)
-//    }
 }
 
 @Composable
@@ -175,11 +169,14 @@ fun AppFooter(navController: NavController){
 
 @Composable
 fun AppBody(navController: NavHostController){
-        NavHost(navController, startDestination = "Recipes") {
+    val viewModel: RecipeViewModel = viewModel()
+    val ingredientViewModel: ingredientViewModel = viewModel()
+    val searchModel: SearchResultViewModel = viewModel()
+
+    NavHost(navController, startDestination = "Recipes") {
 
         composable("Recipes") {
-            val viewModel: RecipeViewModel = viewModel()
-            RecipePage(navController, viewModel) }
+        RecipePage(navController, viewModel) }
 
         composable(
             route = "RecipeDetails/{recipeId}",
@@ -188,14 +185,15 @@ fun AppBody(navController: NavHostController){
             )
             ) { backStackEntry ->
                 val recipeId = backStackEntry.arguments?.getString("recipeId")
-                val viewModel: RecipeViewModel = viewModel()
                 RecipeDetailsPage(recipeId, viewModel)
             }
 
-        composable("Ingredients") { IngredientsPage() }
+        composable("Ingredients") {
+
+            IngredientsPage(viewModel, ingredientViewModel)
+        }
         composable("Create") {
-            val viewModel: RecipeViewModel = viewModel()
-            val searchModel: SearchResultViewModel = viewModel()
+
             CreatePage(viewModel, searchModel)
         }
     }

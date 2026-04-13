@@ -12,6 +12,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -101,7 +102,7 @@ fun CreatePage(viewModel: RecipeViewModel, searchModel: SearchResultViewModel){
                 selectedRecipe = recipe
                 showSearchResultDialog = false
                 showEditorDialog = true},
-            viewModel = searchModel
+            recipeList = searchModel.searchResults.collectAsState().value
         )
     }
 }

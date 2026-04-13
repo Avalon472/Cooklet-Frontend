@@ -36,16 +36,27 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.example.cooklet_frontend.models.Recipe
 
 @Composable
 fun RecipeCard(navController: NavController, recipe: Recipe){
+    val request = ImageRequest.Builder(LocalContext.current)
+        .data(recipe.image)
+        .addHeader(
+            "User-Agent",
+            "Mozilla/5.0 (Linux; Android 10; Mobile) AppleWebKit/537.36 Chrome/120.0.0.0 Mobile Safari/537.36"
+        )
+        .addHeader("Accept", "image/avif,image/webp,image/apng,image/*,*/*;q=0.8")
+        .build()
+
     Card(
         elevation = CardDefaults.cardElevation(10.dp),
         onClick = { navController.navigate("RecipeDetails/${recipe._id}")}
@@ -69,25 +80,11 @@ fun RecipeCard(navController: NavController, recipe: Recipe){
                 overflow = TextOverflow.Ellipsis
              )
             AsyncImage(
-                model = recipe.image,
+                model = request,
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxHeight().fillMaxWidth()
             )
-        }
-    }
-}
-
-@Composable
-fun IngredientItem(item: String, quantity: Number, unit: String){
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        var isChecked by remember{ mutableStateOf(false) }
-
-        Checkbox(checked = isChecked, onCheckedChange = {checkStatus -> isChecked = checkStatus})
-        Row(modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween) {
-            Text(item)
-            Text("$quantity $unit")
         }
     }
 }
