@@ -18,13 +18,15 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextDecoration
 
 @Composable
-fun IngredientItem(item: String, quantity: Number, unit: String){
+fun IngredientItem(item: String, quantity: Number, unit: String, isChecked: Boolean, onCheckedChange: (Boolean) -> Unit){
     Row(verticalAlignment = Alignment.CenterVertically) {
-        var isChecked by remember{ mutableStateOf(false) }
+//        var isChecked by remember{ mutableStateOf(false) }
         val opacity = if(isChecked) 0.5f else 1f
 
-        Checkbox(checked = isChecked, onCheckedChange = {checkStatus -> isChecked = checkStatus})
-        Row(modifier = Modifier.fillMaxWidth().alpha(opacity),
+        Checkbox(checked = isChecked, onCheckedChange = onCheckedChange)
+        Row(modifier = Modifier
+            .fillMaxWidth()
+            .alpha(opacity),
             horizontalArrangement = Arrangement.SpaceBetween) {
             val isCompleted = if (isChecked) {
                 TextStyle(

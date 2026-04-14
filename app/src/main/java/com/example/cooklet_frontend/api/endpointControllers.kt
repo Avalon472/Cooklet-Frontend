@@ -2,12 +2,15 @@ package com.example.cooklet_frontend.api
 
 import com.example.cooklet_frontend.models.Recipe
 import com.example.cooklet_frontend.models.newRecipePayload
+import retrofit2.Call
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface ApiService {
@@ -25,6 +28,9 @@ interface ApiService {
     suspend fun createRecipe(
         @Body recipe: newRecipePayload
     ): Response<Recipe>
+
+    @DELETE("{id}")
+    suspend fun deleteRecipe(@Path("id") id: String): Response<Unit>
 }
 
 object RetrofitInstance {

@@ -1,6 +1,8 @@
 package com.example.cooklet_frontend.api
 
 import android.util.Log
+import android.widget.Toast
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.cooklet_frontend.models.Recipe
@@ -61,5 +63,27 @@ class RecipeViewModel : ViewModel() {
                 _state.value = "Exception: ${e.message}"
             }
         }
+    }
+
+    fun deleteRecipe(id: String){
+        viewModelScope.launch {
+            if(id == "") return@launch
+            try {
+                val response = RetrofitInstance.api.deleteRecipe(id)
+
+                if (response.isSuccessful) {
+                    _state.value = "Recipe deleted!"
+                } else {
+                    _state.value = "Exception: Internal Server Error"
+                }
+
+            } catch (e: Exception) {
+                _state.value = "Exception: ${e.message}"
+            }
+        }
+    }
+
+    fun resetState(){
+        _state.value = "Idle"
     }
 }

@@ -30,24 +30,6 @@ fun SearchRecipeDialog(
         onDismissRequest = onDismiss,
         confirmButton = {
             Button(onClick = {
-                // input validation and save recipe TODO
-//                val fakeRecipe = Recipe(
-//                    id = null,
-//                    image = "",
-//                    title = "Test Recipe",
-//                    readyInMinutes = 30,
-//                    servings = null,
-//                    sourceURL = "",
-//                    recipeTags = null,
-//                    pricePerServing = null,
-//                    extendedIngredients = emptyList(),
-//                    summary = "Sample summary",
-//                    analyzedInstructions = emptyList(),
-//                    _id = null
-//                )
-
-
-//                onSearch(fakeRecipe)
                 viewModel.searchRecipes(query)
                 onSearch()
             }) {

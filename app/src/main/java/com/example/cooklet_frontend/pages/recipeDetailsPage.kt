@@ -1,5 +1,6 @@
 package com.example.cooklet_frontend.pages
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,30 +11,50 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.KeyboardReturn
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.KeyboardReturn
 import androidx.compose.material.icons.filled.Timer
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.cooklet_frontend.api.RecipeViewModel
+import com.example.cooklet_frontend.components.ConfirmDeleteModal
 
 @Composable
-fun RecipeDetailsPage(recipeId: String?, viewModel: RecipeViewModel){
+fun RecipeDetailsPage(recipeId: String?, viewModel: RecipeViewModel, navController: NavController){
 
     val recipes by viewModel.recipes.collectAsState()
+    val recipeState by viewModel.state.collectAsState()
+    var showDeleteDialog by remember {mutableStateOf(false)}
 
     LaunchedEffect(Unit) {
         if (recipes.isEmpty()) {
             viewModel.fetchRecipes()
+        }
+    }
+
+    LaunchedEffect(recipeState) {
+        if(recipeState == "Recipe deleted!") {
+            navController.popBackStack()
+            viewModel.resetState()
         }
     }
 
@@ -51,6 +72,38 @@ fun RecipeDetailsPage(recipeId: String?, viewModel: RecipeViewModel){
         .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(5.dp)) {
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Button(
+                modifier = Modifier.padding(horizontal = 8.dp),
+                onClick = { navController.popBackStack() }) {
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
+            }
+
+
+            //Control buttons for edit and delete
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End
+            ) {
+                Button(
+                    modifier = Modifier.padding(horizontal = 8.dp),
+                    onClick = { /*TODO*/ }) {
+                    Icon(Icons.Filled.Edit, contentDescription = null)
+                }
+
+                Button(
+                    modifier = Modifier.padding(horizontal = 8.dp),
+                    onClick = {
+                        showDeleteDialog = true;
+                    }) {
+                    Icon(Icons.Filled.Delete, contentDescription = null)
+                }
+            }
+        }
 
         AsyncImage(
             model = recipe.image,
@@ -93,5 +146,16 @@ fun RecipeDetailsPage(recipeId: String?, viewModel: RecipeViewModel){
             }
         }
 
+    }
+
+    if(showDeleteDialog){
+        ConfirmDeleteModal(
+            onDismiss = {
+            showDeleteDialog = false;
+            },
+            onConfirm = {
+            showDeleteDialog = false;
+            viewModel.deleteRecipe(recipe._id ?: "")
+            })
     }
 }
