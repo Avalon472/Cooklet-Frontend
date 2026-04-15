@@ -10,6 +10,7 @@ import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -31,6 +32,12 @@ interface ApiService {
 
     @DELETE("{id}")
     suspend fun deleteRecipe(@Path("id") id: String): Response<Unit>
+
+    @PUT("{id}")
+    suspend fun editRecipe(
+        @Path("id") id:String,
+        @Body recipe: newRecipePayload
+    ): Response<Recipe>
 }
 
 object RetrofitInstance {

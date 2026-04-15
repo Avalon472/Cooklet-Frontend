@@ -30,6 +30,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -37,13 +38,19 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.cooklet_frontend.api.RecipeViewModel
 import com.example.cooklet_frontend.components.ConfirmDeleteModal
+import com.example.cooklet_frontend.components.RecipeEditorDialog
+import com.example.cooklet_frontend.utils.convertRecipeToPayload
 
 @Composable
-fun RecipeDetailsPage(recipeId: String?, viewModel: RecipeViewModel, navController: NavController){
+fun RecipeDetailsPage(recipeId: String, viewModel: RecipeViewModel, navController: NavController){
 
     val recipes by viewModel.recipes.collectAsState()
+    val recipe = recipes.find { it._id == recipeId }
+
     val recipeState by viewModel.state.collectAsState()
     var showDeleteDialog by remember {mutableStateOf(false)}
+    var showEditorDialog by remember {mutableStateOf(false)}
+    val context = LocalContext.current
 
     LaunchedEffect(Unit) {
         if (recipes.isEmpty()) {
@@ -55,10 +62,22 @@ fun RecipeDetailsPage(recipeId: String?, viewModel: RecipeViewModel, navControll
         if(recipeState == "Recipe deleted!") {
             navController.popBackStack()
             viewModel.resetState()
+            Toast.makeText(
+                context,
+                "${recipe!!.title} has been deleted!",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+        else if(recipeState == "Recipe updated!"){
+            viewModel.resetState()
+            Toast.makeText(
+                context,
+                "${recipe!!.title} has been updated!",
+                Toast.LENGTH_SHORT
+            ).show()
         }
     }
 
-    val recipe = recipes.find { it._id == recipeId }
 
     if (recipe == null) {
         Text("Recipe not found or loading...")
@@ -91,7 +110,7 @@ fun RecipeDetailsPage(recipeId: String?, viewModel: RecipeViewModel, navControll
             ) {
                 Button(
                     modifier = Modifier.padding(horizontal = 8.dp),
-                    onClick = { /*TODO*/ }) {
+                    onClick = { showEditorDialog = true }) {
                     Icon(Icons.Filled.Edit, contentDescription = null)
                 }
 
@@ -157,5 +176,17 @@ fun RecipeDetailsPage(recipeId: String?, viewModel: RecipeViewModel, navControll
             showDeleteDialog = false;
             viewModel.deleteRecipe(recipe._id ?: "")
             })
+    }
+
+    if (showEditorDialog) {
+        RecipeEditorDialog(
+            initialRecipe = convertRecipeToPayload(recipe),
+            onDismiss = { showEditorDialog = false },
+            onSubmit = {
+                viewModel.editRecipe(recipeId, it)
+                showEditorDialog = false
+            },
+            type = "Edit"
+        )
     }
 }

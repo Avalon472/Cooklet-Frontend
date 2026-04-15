@@ -1,5 +1,6 @@
 package com.example.cooklet_frontend
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -27,6 +28,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -84,6 +86,14 @@ fun AppHeader(navController: NavController){
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.primaryContainer)
     ) {
+        Box(
+            modifier = Modifier
+                .align(Alignment.CenterStart)
+                .padding(8.dp)
+        ){
+            Image(painterResource(R.drawable.cooklet_logo),
+                contentDescription = "Cooklet Logo")
+        }
 
         Text(
             text = routeText ?: "Cooklet",
@@ -185,7 +195,7 @@ fun AppBody(navController: NavHostController){
             )
             ) { backStackEntry ->
                 val recipeId = backStackEntry.arguments?.getString("recipeId")
-                RecipeDetailsPage(recipeId, viewModel, navController)
+                RecipeDetailsPage(recipeId?: "", viewModel, navController)
             }
 
         composable("Ingredients") {

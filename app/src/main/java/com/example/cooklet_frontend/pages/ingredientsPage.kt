@@ -1,6 +1,7 @@
 package com.example.cooklet_frontend.pages
 
 import android.widget.Toast
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -12,11 +13,15 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.sharp.List
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.NoFood
+import androidx.compose.material.icons.sharp.List
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -58,7 +63,6 @@ fun IngredientsPage(
     val ingredientList = ingredientViewModel.aisleItems.collectAsState().value
     Box(modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center){
-        if(ingredientList.isNotEmpty()){
 
         LazyColumn (modifier = Modifier
             .fillMaxSize()
@@ -85,21 +89,37 @@ fun IngredientsPage(
                     }
                 }
 
+                if(ingredientList.isNotEmpty()){
 
-                val aisleItems by ingredientViewModel.aisleItems.collectAsState()
+                    val aisleItems by ingredientViewModel.aisleItems.collectAsState()
 
-                for ((key, value) in aisleItems) {
-                    Text(key)
-                    for (ingredient in value) {
-                        IngredientItem(
-                            ingredient.name,
-                            ingredient.quantity,
-                            ingredient.unit,
-                            ingredient.checked,
-                            { checked ->
-                                ingredientViewModel.toggleIngredient(key, ingredient.name, checked)
-                            }
-                        )
+                    for ((key, value) in aisleItems) {
+                        Text(key)
+                        for (ingredient in value) {
+                            IngredientItem(
+                                ingredient.name,
+                                ingredient.quantity,
+                                ingredient.unit,
+                                ingredient.checked,
+                                { checked ->
+                                    ingredientViewModel.toggleIngredient(key, ingredient.name, checked)
+                                }
+                            )
+                        }
+                    }
+                }else{
+                    Column(modifier = Modifier.fillParentMaxSize().padding(bottom = 128.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center) {
+                        Icon(
+                            Icons.AutoMirrored.Sharp.List,
+                            contentDescription = null,
+                            Modifier.size(128.dp))
+                        Spacer(Modifier.height(32.dp))
+                        Text(modifier = Modifier.fillMaxWidth(0.75f),
+                            textAlign = TextAlign.Center,
+                            text = "No Recipe has been added. " +
+                                    "Click Add Recipe Ingredients to add one.")
                     }
                 }
 
@@ -114,11 +134,6 @@ fun IngredientsPage(
                     )
                 }
             }
-        }
-        }else{
-            Text(modifier = Modifier.fillMaxWidth(0.75f),
-                textAlign = TextAlign.Center,
-                text = "No Recipe has been added. Click Add Recipe Ingredients to add one.")
         }
 
         Column(modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp).fillMaxWidth(0.33f),

@@ -51,7 +51,8 @@ val defaultRecipePayload = newRecipePayload(
 fun RecipeEditorDialog(
     initialRecipe: newRecipePayload? = null,
     onDismiss: () -> Unit,
-    onSubmit: (newRecipePayload) -> Unit
+    onSubmit: (newRecipePayload) -> Unit,
+    type: String
 ) {
     var recipeState by remember {
         mutableStateOf(initialRecipe ?: defaultRecipePayload)
@@ -95,7 +96,7 @@ fun RecipeEditorDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Create Recipe") },
+        title = { Text("$type Recipe") },
         text = {
             Column(
                 modifier = Modifier

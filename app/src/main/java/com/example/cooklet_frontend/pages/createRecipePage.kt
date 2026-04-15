@@ -82,7 +82,8 @@ fun CreatePage(viewModel: RecipeViewModel, searchModel: SearchResultViewModel){
             onSubmit = {
                 viewModel.createRecipe(it)
                 showEditorDialog = false
-            }
+            },
+            type = "Create"
         )
     }
     if (showSearchDialog) {

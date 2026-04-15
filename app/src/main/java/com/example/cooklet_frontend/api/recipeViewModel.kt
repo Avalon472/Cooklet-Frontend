@@ -53,9 +53,8 @@ class RecipeViewModel : ViewModel() {
                 val response = RetrofitInstance.api.createRecipe(recipe)
 
                 if (response.isSuccessful) {
-                    _state.value = "Recipe created!"
-
                     fetchRecipes()
+                    _state.value = "Recipe created!"
                 } else {
                     _state.value = "Error: ${response.code()}"
                 }
@@ -68,6 +67,7 @@ class RecipeViewModel : ViewModel() {
     fun deleteRecipe(id: String){
         viewModelScope.launch {
             if(id == "") return@launch
+            _state.value = "Deleting Recipe..."
             try {
                 val response = RetrofitInstance.api.deleteRecipe(id)
 
@@ -77,6 +77,26 @@ class RecipeViewModel : ViewModel() {
                     _state.value = "Exception: Internal Server Error"
                 }
 
+            } catch (e: Exception) {
+                _state.value = "Exception: ${e.message}"
+            }
+        }
+    }
+
+    fun editRecipe(id: String, recipe: newRecipePayload){
+        viewModelScope.launch {
+            if(id == "") return@launch
+            _state.value = "Updating Recipe..."
+
+            try {
+                val response = RetrofitInstance.api.editRecipe(id, recipe)
+
+                if (response.isSuccessful) {
+                    fetchRecipes()
+                    _state.value = "Recipe updated!"
+                } else {
+                    _state.value = "Error: ${response.code()}"
+                }
             } catch (e: Exception) {
                 _state.value = "Exception: ${e.message}"
             }
