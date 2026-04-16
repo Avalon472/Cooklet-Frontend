@@ -1,5 +1,6 @@
 package com.example.cooklet_frontend.pages
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -12,15 +13,21 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ErrorOutline
 import androidx.compose.material.icons.filled.NoFood
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -31,10 +38,38 @@ import com.example.cooklet_frontend.components.RecipeCard
 @Composable
 fun RecipePage(navController: NavController, viewModel: RecipeViewModel) {
 
+    val recipeState by viewModel.state.collectAsState()
     val recipes by viewModel.recipes.collectAsState()
+    val context = LocalContext.current
+    var fetchError by remember {mutableStateOf(false)}
+    var loading by remember {mutableStateOf(true)}
 
     LaunchedEffect(Unit) {
-//        viewModel.fetchRecipes()
+        viewModel.fetchRecipes()
+        loading = true;
+    }
+
+    LaunchedEffect(recipeState) {
+        if(recipeState == "Fetch success!") {
+            viewModel.resetState()
+            Toast.makeText(
+                context,
+                "Fetch successful. ${recipes.size} results found.",
+                Toast.LENGTH_SHORT
+            ).show()
+            fetchError = false;
+            loading = false;
+        }
+        else if(recipeState != "Idle" && recipeState != "Loading..."){
+            viewModel.resetState()
+            Toast.makeText(
+                context,
+                "Failed to fetch recipes.",
+                Toast.LENGTH_SHORT
+            ).show()
+            fetchError = true;
+            loading = false;
+        }
     }
     LazyColumn(
         modifier = Modifier.fillMaxSize()
@@ -45,23 +80,52 @@ fun RecipePage(navController: NavController, viewModel: RecipeViewModel) {
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                if(recipes.isNotEmpty()) {
-                    recipes.forEach { recipe ->
-                        RecipeCard(navController, recipe)
-                    }
-                }else {
-                    Column(modifier = Modifier.fillParentMaxSize(),
+                if (loading) {
+                    Column(
+                        modifier = Modifier.fillParentMaxSize(),
                         horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center) {
-                    Icon(Icons.Filled.NoFood, contentDescription = null,
-                        Modifier.size(128.dp))
-                    Spacer(Modifier.height(32.dp))
-                    Text(
-                        "No recipe has been created yet. " +
-                                "Head over to the create tab to make your first recipe!",
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.fillMaxWidth(0.75f)
-                    )
+                        verticalArrangement = Arrangement.Center
+                    ){
+                        CircularProgressIndicator(modifier = Modifier.size(60.dp))
+                    }
+                }
+                else{
+                    if (recipes.isNotEmpty()) {
+                        recipes.forEach { recipe ->
+                            RecipeCard(navController, recipe)
+                        }
+                    } else {
+                        Column(
+                            modifier = Modifier.fillParentMaxSize(),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            if (fetchError) {
+                                Icon(
+                                    Icons.Filled.ErrorOutline, contentDescription = null,
+                                    Modifier.size(128.dp)
+                                )
+                                Spacer(Modifier.height(32.dp))
+                                Text(
+                                    "An error occured while attempting to fetch recipes." +
+                                            "Please verify you are connected to the internet and try again.",
+                                    textAlign = TextAlign.Center,
+                                    modifier = Modifier.fillMaxWidth(0.75f)
+                                )
+                            } else {
+                                Icon(
+                                    Icons.Filled.NoFood, contentDescription = null,
+                                    Modifier.size(128.dp)
+                                )
+                                Spacer(Modifier.height(32.dp))
+                                Text(
+                                    "No recipe has been created yet. " +
+                                            "Head over to the create tab to make your first recipe!",
+                                    textAlign = TextAlign.Center,
+                                    modifier = Modifier.fillMaxWidth(0.75f)
+                                )
+                            }
+                        }
                     }
                 }
             }

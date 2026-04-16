@@ -28,6 +28,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -40,6 +41,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.cooklet_frontend.api.IngredientViewModelFactory
 import com.example.cooklet_frontend.api.RecipeViewModel
 import com.example.cooklet_frontend.api.SearchResultViewModel
 import com.example.cooklet_frontend.api.ingredientViewModel
@@ -179,8 +181,13 @@ fun AppFooter(navController: NavController){
 
 @Composable
 fun AppBody(navController: NavHostController){
+    val context = LocalContext.current
+
     val viewModel: RecipeViewModel = viewModel()
-    val ingredientViewModel: ingredientViewModel = viewModel()
+    val ingredientViewModel: ingredientViewModel = viewModel(factory = IngredientViewModelFactory(
+        context.applicationContext
+    )
+    )
     val searchModel: SearchResultViewModel = viewModel()
 
     NavHost(navController, startDestination = "Recipes") {

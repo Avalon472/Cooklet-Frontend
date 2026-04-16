@@ -31,11 +31,10 @@ class RecipeViewModel : ViewModel() {
                     val body = response.body()
 
                     _recipes.value = body ?: emptyList()
-                    _state.value = "Success (${_recipes.value.size} results)"
-                    Log.d("SEARCH_DEBUG", _state.value)
+                    _state.value = "Fetch success!"
 
                 } else {
-                    _state.value = "Error: ${response.code()}"
+                    _state.value = "Exception: Internal Server Error"
                 }
 
             } catch (e: Exception) {
@@ -56,7 +55,7 @@ class RecipeViewModel : ViewModel() {
                     fetchRecipes()
                     _state.value = "Recipe created!"
                 } else {
-                    _state.value = "Error: ${response.code()}"
+                    _state.value = "Exception: Internal Server Error"
                 }
             } catch (e: Exception) {
                 _state.value = "Exception: ${e.message}"
@@ -95,7 +94,7 @@ class RecipeViewModel : ViewModel() {
                     fetchRecipes()
                     _state.value = "Recipe updated!"
                 } else {
-                    _state.value = "Error: ${response.code()}"
+                    _state.value = "Exception: Internal Server Error"
                 }
             } catch (e: Exception) {
                 _state.value = "Exception: ${e.message}"

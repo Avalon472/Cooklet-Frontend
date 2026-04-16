@@ -1,16 +1,30 @@
 package com.example.cooklet_frontend.api
 
+import android.app.Application
+import android.content.Context
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import com.example.cooklet_frontend.localStorage.ingredientStorage
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import com.example.cooklet_frontend.models.Recipe
 
-class ingredientViewModel : ViewModel() {
+class ingredientViewModel(
+    private val context: Context
+) : ViewModel() {
 
     private val _aisleItems =
-        MutableStateFlow<Map<String, List<simpleIngredient>>>(emptyMap())
+        MutableStateFlow<Map<String, List<simpleIngredient>>>(
+            ingredientStorage.load(context)
+        )
 
     val aisleItems: StateFlow<Map<String, List<simpleIngredient>>> = _aisleItems
+
+    private fun save() {
+        ingredientStorage.save(context, _aisleItems.value)
+    }
 
     fun toggleIngredient(aisle: String, ingredientName: String, checked: Boolean) {
         _aisleItems.value = _aisleItems.value.mapValues { (key, list) ->
@@ -21,6 +35,7 @@ class ingredientViewModel : ViewModel() {
                 }
             } else list
         }
+        save()
     }
 
     fun addIngredients(recipe: Recipe) {
@@ -58,6 +73,7 @@ class ingredientViewModel : ViewModel() {
         }
 
         _aisleItems.value = current
+        save()
     }
 
     fun deleteChecked(){
@@ -66,10 +82,12 @@ class ingredientViewModel : ViewModel() {
                 list.filter { !it.checked }
             }
             .filterValues { it.isNotEmpty() }
+        save()
     }
 
     fun deleteAllIngredients(){
         _aisleItems.value = emptyMap()
+        save()
     }
 }
 
@@ -79,3 +97,12 @@ data class simpleIngredient (
     val unit: String,
     val checked: Boolean
 )
+
+class IngredientViewModelFactory(
+    private val context: Context
+) : ViewModelProvider.Factory {
+
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        return ingredientViewModel(context.applicationContext) as T
+    }
+}
