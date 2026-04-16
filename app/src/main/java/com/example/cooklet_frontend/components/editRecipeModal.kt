@@ -7,12 +7,18 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedButton
@@ -47,6 +53,7 @@ val defaultRecipePayload = newRecipePayload(
     pricePerServing = 0.0,
 )
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RecipeEditorDialog(
     initialRecipe: newRecipePayload? = null,
@@ -61,13 +68,15 @@ fun RecipeEditorDialog(
     // Ensure lists are mutable copies
     val ingredients = remember {
         mutableStateListOf<newRecipeIngredient>().apply {
-            addAll(recipeState.extendedIngredients)
+            addAll(recipeState.extendedIngredients.map {
+                it.copy(unit = normalizeUnit(it.unit))
+            })
             if (isEmpty()) add(newRecipeIngredient(
                 name = "",
                 id = 0,
                 aisle = "",
                 amount = 0.0,
-                unit = "N/A",
+                unit = "",
                 measures = newRecipeMeasures(
                     us = newRecipeMeasurement(
                         amount = 0.0,
@@ -93,6 +102,16 @@ fun RecipeEditorDialog(
                 ))
         }
     }
+
+    val unitOptions = listOf(
+        "unit(s)", "serving(s)", "g", "kg",
+        "oz", "lb", "ml", "L",
+        "tsp", "tbsp", "cup",
+        "pinches", "piece(s)",
+        "fl oz", "cloves()", "slice(s)",
+        "can(s)", "pkg", "stick(s)",
+        "dash", ""
+    )
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -142,22 +161,76 @@ fun RecipeEditorDialog(
                 // Ingredients
                 Text("Ingredients*")
                 ingredients.forEachIndexed { index, ingredient ->
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
+
+                    Column(
+                        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+                        verticalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
+
                         OutlinedTextField(
                             value = ingredient.name,
                             onValueChange = { newName ->
                                 ingredients[index] = ingredient.copy(name = newName)
                             },
-                            modifier = Modifier.weight(1f),
-                            label = { Text("Ingredient ${index + 1}") }
+                            label = { Text("Ingredient") },
+                            modifier = Modifier.fillMaxWidth()
                         )
 
-                        IconButton(onClick = {
-                            ingredients.removeAt(index)
-                        }) {
-                            Icon(Icons.Default.Delete, contentDescription = null)
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            OutlinedTextField(
+                                value = if (ingredient.amount == 0.0) "" else ingredient.amount.toString(),
+                                onValueChange = { newAmount ->
+                                    ingredients[index] = ingredient.copy(
+                                        amount = newAmount.toDoubleOrNull() ?: 0.0
+                                    )
+                                },
+                                label = { Text("Amt") },
+                                modifier = Modifier.weight(1f)
+                            )
+
+                            var expanded by remember { mutableStateOf(false) }
+
+                            ExposedDropdownMenuBox(
+                                expanded = expanded,
+                                onExpandedChange = { expanded = !expanded },
+                                modifier = Modifier.weight(1.5f)
+                            ) {
+                                OutlinedTextField(
+                                    value = ingredient.unit,
+                                    onValueChange = {}, // read-only
+                                    readOnly = true,
+                                    label = { Text("Unit") },
+                                    trailingIcon = {
+                                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+                                    },
+                                    modifier = Modifier.menuAnchor()
+                                )
+
+                                ExposedDropdownMenu(
+                                    expanded = expanded,
+                                    onDismissRequest = { expanded = false }
+                                ) {
+                                    unitOptions.forEach { unit ->
+                                        DropdownMenuItem(
+                                            text = { Text(if (unit.isBlank()) "None" else unit) },
+                                            onClick = {
+                                                ingredients[index] = ingredient.copy(unit = unit)
+                                                expanded = false
+                                            }
+                                        )
+                                    }
+                                }
+                            }
+
+                            IconButton(onClick = {
+                                ingredients.removeAt(index)
+                            }) {
+                                Icon(Icons.Default.Delete, contentDescription = null)
+                            }
                         }
                     }
                 }
@@ -256,4 +329,38 @@ fun RecipeEditorDialog(
             }
         }
     )
+}
+
+
+fun normalizeUnit(unit: String?): String {
+    val u = unit?.trim()?.lowercase() ?: return ""
+
+    return when (u) {
+        "tablespoon", "tablespoons", "tbsp" -> "tbsp"
+        "teaspoon", "teaspoons", "tsp" -> "tsp"
+        "cup", "cups" -> "cup"
+        "fluid ounce", "fluid ounces", "fl oz" -> "fl oz"
+        "milliliter", "milliliters", "ml" -> "ml"
+        "liter", "liters", "l" -> "L"
+
+        "ounce", "ounces", "oz" -> "oz"
+        "pound", "pounds", "lb", "lbs" -> "lb"
+        "gram", "grams", "g" -> "g"
+        "kilogram", "kilograms", "kg" -> "kg"
+
+        "clove", "cloves" -> "clove(s)"
+        "slice", "slices" -> "slice(s)"
+        "piece", "pieces" -> "piece(s)"
+        "can", "cans" -> "can(s)"
+        "package", "packages", "pkg" -> "pkg"
+        "stick", "sticks" -> "stick(s)"
+        "dash", "dashes" -> "dashes"
+        "pinch", "pinches" -> "pinches"
+
+        "serving", "servings" -> "serving(s)"
+        "unit", "units", "unit(s)" -> "unit(s)"
+        "" -> ""
+
+        else -> u
+    }
 }
