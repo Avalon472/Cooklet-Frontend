@@ -1,81 +1,69 @@
 package com.example.cooklet_frontend.api
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import com.example.cooklet_frontend.models.Recipe
+import com.example.cooklet_frontend.room.AisleEntity
+import com.example.cooklet_frontend.room.IngredientDao
+import com.example.cooklet_frontend.room.IngredientEntity
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 
-class ingredientViewModel : ViewModel() {
+class ingredientViewModel(
+    private val dao: IngredientDao
+) : ViewModel() {
 
-    private val _aisleItems =
-        MutableStateFlow<Map<String, List<simpleIngredient>>>(emptyMap())
-
-    val aisleItems: StateFlow<Map<String, List<simpleIngredient>>> = _aisleItems
-
-    fun toggleIngredient(aisle: String, ingredientName: String, checked: Boolean) {
-        _aisleItems.value = _aisleItems.value.mapValues { (key, list) ->
-            if (key == aisle) {
-                list.map {
-                    if (it.name == ingredientName) it.copy(checked = checked)
-                    else it
+    val aisleItems: StateFlow<Map<String, List<IngredientEntity>>> =
+        dao.getAislesWithIngredients()
+            .map { list ->
+                list.associate { aisleWithIngredients ->
+                    aisleWithIngredients.aisle.name to
+                            aisleWithIngredients.ingredients
                 }
-            } else list
+            }
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyMap())
+
+    fun toggleIngredient(ingredient: IngredientEntity, checked: Boolean) {
+        viewModelScope.launch {
+            dao.updateIngredient(ingredient.copy(checked = checked))
         }
     }
 
     fun addIngredients(recipe: Recipe) {
-        val current = _aisleItems.value.toMutableMap()
+        viewModelScope.launch {
+            for (ingredient in recipe.extendedIngredients) {
 
-        for (ingredient in recipe.extendedIngredients) {
-            var aisle = ingredient.aisle ?: "Non-Standard Item(s)"
-            if (aisle == "") aisle = "Non-Standard Item(s)"
+                var aisle = ingredient.aisle ?: "Non-Standard Item(s)"
+                if (aisle.isBlank()) aisle = "Non-Standard Item(s)"
 
-            val formattedName = ingredient.name.split(" ")
-                .joinToString(" ") { it.replaceFirstChar { c -> c.uppercase() } }
+                val formattedName = ingredient.name.split(" ")
+                    .joinToString(" ") { it.replaceFirstChar { c -> c.uppercase() } }
 
-            val list = current[aisle]?.toMutableList() ?: mutableListOf()
+                dao.insertAisle(AisleEntity(aisle))
 
-            val existing = list.find { it.name == formattedName }
-
-            if (existing != null) {
-                list.replaceAll {
-                    if (it.name == formattedName)
-                        it.copy(quantity = it.quantity + ingredient.amount)
-                    else it
-                }
-            } else {
-                list.add(
-                    simpleIngredient(
-                        name = formattedName,
-                        quantity = ingredient.amount,
-                        unit = ingredient.unit,
-                        checked = false
-                    )
+                dao.insertOrIncrement(
+                    name = formattedName,
+                    quantity = ingredient.amount,
+                    unit = ingredient.unit,
+                    aisleName = aisle
                 )
             }
-
-            current[aisle] = list
         }
-
-        _aisleItems.value = current
     }
 
-    fun deleteChecked(){
-        _aisleItems.value = _aisleItems.value
-            .mapValues { (_, list) ->
-                list.filter { !it.checked }
-            }
-            .filterValues { it.isNotEmpty() }
+    fun deleteChecked() {
+        viewModelScope.launch {
+            dao.deleteChecked()
+        }
     }
 
     fun deleteAllIngredients(){
-        _aisleItems.value = emptyMap()
+        viewModelScope.launch {
+            dao.deleteAllIngredients()
+        }
     }
 }
-
-data class simpleIngredient (
-    val name: String,
-    var quantity: Double,
-    val unit: String,
-    val checked: Boolean
-)

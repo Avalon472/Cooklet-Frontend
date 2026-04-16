@@ -28,6 +28,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -47,6 +48,8 @@ import com.example.cooklet_frontend.pages.CreatePage
 import com.example.cooklet_frontend.pages.IngredientsPage
 import com.example.cooklet_frontend.pages.RecipeDetailsPage
 import com.example.cooklet_frontend.pages.RecipePage
+import com.example.cooklet_frontend.room.DatabaseProvider
+import com.example.cooklet_frontend.room.IngredientViewModelFactory
 
 @Composable
 fun AppContent(){
@@ -179,8 +182,14 @@ fun AppFooter(navController: NavController){
 
 @Composable
 fun AppBody(navController: NavHostController){
+    val context = LocalContext.current
+    val db = DatabaseProvider.getDatabase(context)
+    val dao = db.ingredientDao()
+
     val viewModel: RecipeViewModel = viewModel()
-    val ingredientViewModel: ingredientViewModel = viewModel()
+    val ingredientViewModel: ingredientViewModel = viewModel(
+        factory = IngredientViewModelFactory(dao)
+    )
     val searchModel: SearchResultViewModel = viewModel()
 
     NavHost(navController, startDestination = "Recipes") {
