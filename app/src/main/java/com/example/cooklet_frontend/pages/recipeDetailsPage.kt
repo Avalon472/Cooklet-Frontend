@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.cooklet_frontend.api.RecipeViewModel
+import com.example.cooklet_frontend.api.measurementUnit
 import com.example.cooklet_frontend.api.preferencesViewModel
 import com.example.cooklet_frontend.components.ConfirmDeleteModal
 import com.example.cooklet_frontend.components.RecipeEditorDialog
@@ -45,7 +46,7 @@ fun RecipeDetailsPage(
     recipeId: String,
     viewModel: RecipeViewModel,
     navController: NavController,
-    preferences: preferencesViewModel
+    preferencesViewModel: preferencesViewModel
 ){
 
     val recipes by viewModel.recipes.collectAsState()
@@ -54,6 +55,7 @@ fun RecipeDetailsPage(
     val recipeState by viewModel.state.collectAsState()
     var showDeleteDialog by remember {mutableStateOf(false)}
     var showEditorDialog by remember {mutableStateOf(false)}
+    val preferences by preferencesViewModel.appPreferences.collectAsState()
     val context = LocalContext.current
 
     LaunchedEffect(Unit) {
@@ -154,7 +156,12 @@ fun RecipeDetailsPage(
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             recipe.extendedIngredients.forEach {
-                Text("- ${it.amount} ${it.unit} ${it.name}")
+//                Text("- ${it.amount} ${it.unit} ${it.name}")
+                if(preferences.unitType == measurementUnit.METRIC){
+                    Text("- ${it.measures.metric.amount} ${it.measures.metric.unit} ${it.name}")
+                }else{
+                    Text("- ${it.measures.us.amount} ${it.measures.us.unit} ${it.name}")
+                }
             }
         }
 

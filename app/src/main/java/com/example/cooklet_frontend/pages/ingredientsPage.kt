@@ -136,7 +136,7 @@ fun IngredientsPage(
                     SearchResultsDialog(
                         onDismiss = { showAddRecipeIngredientsModal = false },
                         onResultSelect = { recipe ->
-                            ingredientViewModel.addIngredients(recipe)
+                            ingredientViewModel.addIngredients(recipe, preferences.unitType)
                             showAddRecipeIngredientsModal = false
                         },
                         recipeList = viewModel.recipes.collectAsState().value

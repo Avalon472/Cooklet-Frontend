@@ -35,7 +35,7 @@ class ingredientViewModel(
         save()
     }
 
-    fun addIngredients(recipe: Recipe) {
+    fun addIngredients(recipe: Recipe, unit: measurementUnit) {
         val current = _aisleItems.value.toMutableMap()
 
         for (ingredient in recipe.extendedIngredients) {
@@ -44,23 +44,33 @@ class ingredientViewModel(
 
             val formattedName = ingredient.name.split(" ")
                 .joinToString(" ") { it.replaceFirstChar { c -> c.uppercase() } }
+            val ingredientUnit = if(unit == measurementUnit.METRIC){
+                ingredient.measures.metric.unit
+            }else{
+                ingredient.measures.us.unit
+            }
+            val ingredientAmount = if(unit == measurementUnit.METRIC){
+                ingredient.measures.metric.amount
+            }else{
+                ingredient.measures.us.amount
+            }
 
             val list = current[aisle]?.toMutableList() ?: mutableListOf()
 
-            val existing = list.find { it.name == formattedName && it.unit == ingredient.unit }
+            val existing = list.find { it.name == formattedName && it.unit == ingredientUnit }
 
             if (existing != null) {
                 list.replaceAll {
-                    if (it.name == formattedName && it.unit == ingredient.unit)
-                        it.copy(quantity = it.quantity + ingredient.amount)
+                    if (it.name == formattedName && it.unit == ingredientUnit)
+                        it.copy(quantity = it.quantity + ingredientAmount)
                     else it
                 }
             } else {
                 list.add(
                     simpleIngredient(
                         name = formattedName,
-                        quantity = ingredient.amount,
-                        unit = ingredient.unit,
+                        quantity = ingredientAmount,
+                        unit = ingredientUnit,
                         checked = false
                     )
                 )

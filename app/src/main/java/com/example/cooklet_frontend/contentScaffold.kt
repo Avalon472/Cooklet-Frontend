@@ -55,20 +55,14 @@ import com.example.cooklet_frontend.pages.RecipeDetailsPage
 import com.example.cooklet_frontend.pages.RecipePage
 
 @Composable
-fun AppContent(){
+fun AppContent(
+    viewModel: RecipeViewModel,
+    ingredientViewModel: ingredientViewModel,
+    searchModel: SearchResultViewModel,
+    preferencesViewModel: preferencesViewModel
+){
     val navController = rememberNavController()
-    val context = LocalContext.current
 
-    val viewModel: RecipeViewModel = viewModel()
-    val ingredientViewModel: ingredientViewModel = viewModel(factory = IngredientViewModelFactory(
-        context.applicationContext
-    )
-    )
-    val searchModel: SearchResultViewModel = viewModel()
-    val preferencesViewModel: preferencesViewModel =  viewModel(factory = PreferencesViewModelFactory(
-        context.applicationContext
-    )
-    )
     Scaffold(
         topBar = { AppHeader(navController, preferencesViewModel) },
         bottomBar = { AppFooter(navController) }

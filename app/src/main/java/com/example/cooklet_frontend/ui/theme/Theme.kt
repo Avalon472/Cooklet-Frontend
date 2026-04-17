@@ -10,13 +10,23 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import com.example.cooklet_frontend.ui.theme.Background
 import com.example.cooklet_frontend.ui.theme.PrimaryContainer
 
 private val DarkColorScheme = darkColorScheme(
     primary = PrimaryTextDark,
     secondary = PurpleGrey80,
     tertiary = Pink80,
-    primaryContainer = PrimaryContainer
+    primaryContainer = PrimaryContainer,
+    background = Background,
+
+    surface = Color.White,
+    onSurface = Color.Black,
+
+    onPrimary = Color.White,
+    onSecondary = Color.White,
+    onTertiary = Color.White,
+    onBackground = Color.Black
 )
 
 private val LightColorScheme = lightColorScheme(
