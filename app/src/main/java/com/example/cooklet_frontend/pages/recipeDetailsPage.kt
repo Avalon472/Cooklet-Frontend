@@ -35,12 +35,18 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.cooklet_frontend.api.RecipeViewModel
+import com.example.cooklet_frontend.api.preferencesViewModel
 import com.example.cooklet_frontend.components.ConfirmDeleteModal
 import com.example.cooklet_frontend.components.RecipeEditorDialog
 import com.example.cooklet_frontend.utils.convertRecipeToPayload
 
 @Composable
-fun RecipeDetailsPage(recipeId: String, viewModel: RecipeViewModel, navController: NavController){
+fun RecipeDetailsPage(
+    recipeId: String,
+    viewModel: RecipeViewModel,
+    navController: NavController,
+    preferences: preferencesViewModel
+){
 
     val recipes by viewModel.recipes.collectAsState()
     val recipe = recipes.find { it._id == recipeId }

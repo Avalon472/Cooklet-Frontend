@@ -27,22 +27,27 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.example.cooklet_frontend.ItemSortDropdown
 import com.example.cooklet_frontend.api.RecipeViewModel
+import com.example.cooklet_frontend.api.ingredientSort
 import com.example.cooklet_frontend.api.ingredientViewModel
+import com.example.cooklet_frontend.api.preferencesViewModel
 import com.example.cooklet_frontend.components.IngredientItem
+import com.example.cooklet_frontend.components.ingredientSortDropdown
 import com.example.cooklet_frontend.components.SearchResultsDialog
 
 
 @Composable
 fun IngredientsPage(
     viewModel: RecipeViewModel,
-    ingredientViewModel: ingredientViewModel
+    ingredientViewModel: ingredientViewModel,
+    preferencesViewModel: preferencesViewModel
 ){
     var showAddRecipeIngredientsModal by remember {mutableStateOf(false)}
     val aisleItems by ingredientViewModel.aisleItems.collectAsState()
+    val preferences by preferencesViewModel.appPreferences.collectAsState()
 
     Box(modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center){
@@ -58,7 +63,7 @@ fun IngredientsPage(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    ItemSortDropdown()
+                    ingredientSortDropdown(preferencesViewModel)
 
 
 
@@ -74,22 +79,43 @@ fun IngredientsPage(
 
                 if(aisleItems.isNotEmpty()){
 
-
-
-                    for ((key, value) in aisleItems) {
-                        Text(key)
-                        for (ingredient in value) {
-                            IngredientItem(
-                                ingredient.name,
-                                ingredient.quantity,
-                                ingredient.unit,
-                                ingredient.checked,
-                                { checked ->
-                                    ingredientViewModel.toggleIngredient(key, ingredient.name, checked)
-                                }
-                            )
+                    if(preferences.ingredientSortType == ingredientSort.AISLE){
+                        aisleItems.entries.sortedBy { it.key}.forEach { (key, value) ->
+                            Text(key,
+                                modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 8.dp),
+                                fontWeight = FontWeight.Black)
+                            for (ingredient in value) {
+                                IngredientItem(
+                                    ingredient.name,
+                                    ingredient.quantity,
+                                    ingredient.unit,
+                                    ingredient.checked,
+                                    { checked ->
+                                        ingredientViewModel.toggleIngredient(key, ingredient.name, checked)
+                                    }
+                                )
+                            }
                         }
                     }
+                    else{
+                        val inverted = aisleItems
+                            .flatMap { (key, list) ->
+                                list.map { value -> value to key }
+                            }
+                            .toMap()
+                        aisleItems.values.flatten().sortedBy{it.name}.forEach { ingredient ->
+                                IngredientItem(
+                                    ingredient.name,
+                                    ingredient.quantity,
+                                    ingredient.unit,
+                                    ingredient.checked,
+                                    { checked ->
+                                        ingredientViewModel.toggleIngredient(inverted[ingredient]!!, ingredient.name, checked)
+                                    }
+                                )
+                        }
+                    }
+
                 }else{
                     Column(modifier = Modifier.fillParentMaxSize().padding(bottom = 128.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,

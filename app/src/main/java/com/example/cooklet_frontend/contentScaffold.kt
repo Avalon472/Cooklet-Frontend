@@ -22,6 +22,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -42,9 +43,12 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.cooklet_frontend.api.IngredientViewModelFactory
+import com.example.cooklet_frontend.api.PreferencesViewModelFactory
 import com.example.cooklet_frontend.api.RecipeViewModel
 import com.example.cooklet_frontend.api.SearchResultViewModel
 import com.example.cooklet_frontend.api.ingredientViewModel
+import com.example.cooklet_frontend.api.measurementUnit
+import com.example.cooklet_frontend.api.preferencesViewModel
 import com.example.cooklet_frontend.pages.CreatePage
 import com.example.cooklet_frontend.pages.IngredientsPage
 import com.example.cooklet_frontend.pages.RecipeDetailsPage
@@ -53,20 +57,33 @@ import com.example.cooklet_frontend.pages.RecipePage
 @Composable
 fun AppContent(){
     val navController = rememberNavController()
+    val context = LocalContext.current
+
+    val viewModel: RecipeViewModel = viewModel()
+    val ingredientViewModel: ingredientViewModel = viewModel(factory = IngredientViewModelFactory(
+        context.applicationContext
+    )
+    )
+    val searchModel: SearchResultViewModel = viewModel()
+    val preferencesViewModel: preferencesViewModel =  viewModel(factory = PreferencesViewModelFactory(
+        context.applicationContext
+    )
+    )
     Scaffold(
-        topBar = { AppHeader(navController) },
+        topBar = { AppHeader(navController, preferencesViewModel) },
         bottomBar = { AppFooter(navController) }
     ) { paddingValues ->
         Column(modifier = Modifier.padding(paddingValues)) {
-            AppBody(navController)
+            AppBody(navController, viewModel, ingredientViewModel, searchModel, preferencesViewModel)
         }
     }
 }
 
 @Composable
-fun AppHeader(navController: NavController){
+fun AppHeader(navController: NavController, preferencesViewModel: preferencesViewModel){
     // Observe the current back stack entry as a state
     val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val preferences by preferencesViewModel.appPreferences.collectAsState()
 
     // Get the route from the current destination
     val currentRoute = navBackStackEntry?.destination?.route
@@ -78,9 +95,6 @@ fun AppHeader(navController: NavController){
     }
 
     var menuExpanded by remember { mutableStateOf(false) }
-
-    var darkModeEnabled by remember { mutableStateOf(false) }
-    var metricUnits by remember { mutableStateOf(false) }
 
     Box(
         modifier = Modifier
@@ -129,8 +143,8 @@ fun AppHeader(navController: NavController){
                         ) {
                             Text("Dark Mode")
                             Switch(
-                                checked = darkModeEnabled,
-                                onCheckedChange = { darkModeEnabled = it }
+                                checked = !preferences.lightMode,
+                                onCheckedChange = { preferencesViewModel.changeTheme() }
                             )
                         }
                     },
@@ -145,8 +159,8 @@ fun AppHeader(navController: NavController){
                         ) {
                             Text("Metric Units")
                             Switch(
-                                checked = metricUnits,
-                                onCheckedChange = { metricUnits = it }
+                                checked = preferences.unitType == measurementUnit.METRIC,
+                                onCheckedChange = { preferencesViewModel.changeUnitPreference() }
                             )
                         }
                     },
@@ -180,20 +194,17 @@ fun AppFooter(navController: NavController){
 }
 
 @Composable
-fun AppBody(navController: NavHostController){
-    val context = LocalContext.current
-
-    val viewModel: RecipeViewModel = viewModel()
-    val ingredientViewModel: ingredientViewModel = viewModel(factory = IngredientViewModelFactory(
-        context.applicationContext
-    )
-    )
-    val searchModel: SearchResultViewModel = viewModel()
+fun AppBody(
+    navController: NavHostController,
+    viewModel: RecipeViewModel,
+    ingredientViewModel: ingredientViewModel,
+    searchModel: SearchResultViewModel,
+    preferencesViewModel: preferencesViewModel){
 
     NavHost(navController, startDestination = "Recipes") {
 
         composable("Recipes") {
-        RecipePage(navController, viewModel) }
+        RecipePage(navController, viewModel, preferencesViewModel) }
 
         composable(
             route = "RecipeDetails/{recipeId}",
@@ -202,12 +213,12 @@ fun AppBody(navController: NavHostController){
             )
             ) { backStackEntry ->
                 val recipeId = backStackEntry.arguments?.getString("recipeId")
-                RecipeDetailsPage(recipeId?: "", viewModel, navController)
+                RecipeDetailsPage(recipeId?: "", viewModel, navController, preferencesViewModel)
             }
 
         composable("Ingredients") {
 
-            IngredientsPage(viewModel, ingredientViewModel)
+            IngredientsPage(viewModel, ingredientViewModel, preferencesViewModel)
         }
         composable("Create") {
 

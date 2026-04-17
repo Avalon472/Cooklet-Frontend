@@ -23,54 +23,6 @@ class MainActivity : ComponentActivity() {
             CookletFrontendTheme {
                 AppContent()
             }
-            //RecipeScreen()
-        }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    CookletFrontendTheme {
-        Greeting("Android")
-    }
-}
-
-@Composable
-fun RecipeScreen(viewModel: RecipeViewModel = viewModel()) {
-
-    val state = viewModel.state.collectAsState()
-    val recipes = viewModel.recipes.collectAsState()
-
-    Column {
-
-        Button(onClick = {
-//            viewModel.searchRecipes("chicken soup")
-        }) {
-            Text("Search Recipes")
-        }
-
-        Button(onClick = {
-            viewModel.fetchRecipes()
-        }) {
-            Text("Fetch Recipes")
-        }
-
-        Text(state.value)
-
-        recipes.value.forEach {
-            Text(it.title)
-            it.analyzedInstructions.forEach { ins ->
-            Text(ins.step)
-            Text("")}
         }
     }
 }

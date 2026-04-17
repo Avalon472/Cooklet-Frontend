@@ -32,14 +32,23 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.cooklet_frontend.api.RecipeViewModel
+import com.example.cooklet_frontend.api.preferences
+import com.example.cooklet_frontend.api.preferencesViewModel
+import com.example.cooklet_frontend.api.recipeSort
 import com.example.cooklet_frontend.components.RecipeCard
+import com.example.cooklet_frontend.components.recipeSortDropdown
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun RecipePage(navController: NavController, viewModel: RecipeViewModel) {
+fun RecipePage(
+    navController: NavController,
+    viewModel: RecipeViewModel,
+    preferencesViewModel: preferencesViewModel
+) {
 
     val recipeState by viewModel.state.collectAsState()
     val recipes by viewModel.recipes.collectAsState()
+    val preferences by preferencesViewModel.appPreferences.collectAsState()
     val context = LocalContext.current
     var fetchError by remember {mutableStateOf(false)}
     var loading by remember {mutableStateOf(true)}
@@ -74,9 +83,12 @@ fun RecipePage(navController: NavController, viewModel: RecipeViewModel) {
     LazyColumn(
         modifier = Modifier.fillMaxSize()
     ) {
+        item{
+            recipeSortDropdown(preferencesViewModel)
+        }
         item {
             FlowRow(
-                modifier = Modifier.padding(16.dp),
+                modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 16.dp),
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
@@ -91,7 +103,14 @@ fun RecipePage(navController: NavController, viewModel: RecipeViewModel) {
                 }
                 else{
                     if (recipes.isNotEmpty()) {
-                        recipes.forEach { recipe ->
+
+                        val sortedRecipes = when (preferences.recipeSortType) {
+                            recipeSort.NAME -> recipes.sortedBy { it.title }
+                            recipeSort.PRICE -> recipes.sortedBy { it.pricePerServing }
+                            recipeSort.TIME_TO_MAKE -> recipes.sortedBy { it.readyInMinutes }
+                            recipeSort.CREATED -> recipes
+                        }
+                        sortedRecipes.forEach { recipe ->
                             RecipeCard(navController, recipe)
                         }
                     } else {

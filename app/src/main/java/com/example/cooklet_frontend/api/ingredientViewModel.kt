@@ -1,9 +1,6 @@
 package com.example.cooklet_frontend.api
 
-import android.app.Application
 import android.content.Context
-import androidx.compose.ui.platform.LocalContext
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.cooklet_frontend.localStorage.ingredientStorage
@@ -50,11 +47,11 @@ class ingredientViewModel(
 
             val list = current[aisle]?.toMutableList() ?: mutableListOf()
 
-            val existing = list.find { it.name == formattedName }
+            val existing = list.find { it.name == formattedName && it.unit == ingredient.unit }
 
             if (existing != null) {
                 list.replaceAll {
-                    if (it.name == formattedName)
+                    if (it.name == formattedName && it.unit == ingredient.unit)
                         it.copy(quantity = it.quantity + ingredient.amount)
                     else it
                 }
