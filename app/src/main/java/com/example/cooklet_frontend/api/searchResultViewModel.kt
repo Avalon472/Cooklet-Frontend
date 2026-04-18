@@ -27,16 +27,20 @@ class SearchResultViewModel : ViewModel() {
                     val body = response.body()
 
                     _searchResults.value = body ?: emptyList()
-                    _state.value = "Success (${_searchResults.value.size} results)"
+                    _state.value = "Query successful!"
 
                 } else {
-                    _state.value = "Error: ${response.code()}"
+                    _state.value = "Internal Server Error"
                 }
 
             } catch (e: Exception) {
                 _state.value = "Exception: ${e.message}"
             }
         }
+    }
+
+    fun resetState(){
+        _state.value = "Idle"
     }
 
 }

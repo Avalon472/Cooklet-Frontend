@@ -55,7 +55,7 @@ class RecipeViewModel : ViewModel() {
                     fetchRecipes()
                     _state.value = "Recipe created!"
                 } else {
-                    _state.value = "Exception: Internal Server Error"
+                    _state.value = "Error Creating Recipe"
                 }
             } catch (e: Exception) {
                 _state.value = "Exception: ${e.message}"
@@ -94,7 +94,7 @@ class RecipeViewModel : ViewModel() {
                     fetchRecipes()
                     _state.value = "Recipe updated!"
                 } else {
-                    _state.value = "Exception: Internal Server Error"
+                    _state.value = "Internal Server Error"
                 }
             } catch (e: Exception) {
                 _state.value = "Exception: ${e.message}"

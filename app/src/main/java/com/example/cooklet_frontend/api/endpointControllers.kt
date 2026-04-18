@@ -42,8 +42,7 @@ interface ApiService {
 
 object RetrofitInstance {
 
-    private const val BASE_URL = "http://10.0.2.2:5000/api/recipe/"
-//    private const val BASE_URL = "http://10.13.34.33:5000/api/recipe/"
+    private const val BASE_URL = "https://cooklet-backend.onrender.com/api/recipe/"
 
     val api: ApiService by lazy {
         Retrofit.Builder()

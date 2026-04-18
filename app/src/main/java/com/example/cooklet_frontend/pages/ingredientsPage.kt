@@ -139,7 +139,8 @@ fun IngredientsPage(
                             ingredientViewModel.addIngredients(recipe, preferences.unitType)
                             showAddRecipeIngredientsModal = false
                         },
-                        recipeList = viewModel.recipes.collectAsState().value
+                        recipeList = viewModel.recipes.collectAsState().value,
+                        goBack = { showAddRecipeIngredientsModal = false }
                     )
                 }
             }

@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -15,6 +16,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -59,7 +61,8 @@ fun RecipeEditorDialog(
     initialRecipe: newRecipePayload? = null,
     onDismiss: () -> Unit,
     onSubmit: (newRecipePayload) -> Unit,
-    type: String
+    type: String,
+    showLoading: Boolean = false,
 ) {
     var recipeState by remember {
         mutableStateOf(initialRecipe ?: defaultRecipePayload)
@@ -124,6 +127,14 @@ fun RecipeEditorDialog(
                     .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
+                if (showLoading) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        CircularProgressIndicator(modifier = Modifier.size(60.dp))
+                    }
+                }else{
 
                 // Title
                 OutlinedTextField(
@@ -253,7 +264,8 @@ fun RecipeEditorDialog(
                                     unit = "na"
                                 )
                             )
-                    ))
+                        )
+                    )
                 }) {
                     Text("Add Ingredient")
                 }
@@ -293,6 +305,7 @@ fun RecipeEditorDialog(
                 }) {
                     Text("Add Step")
                 }
+            }
             }
         },
 
