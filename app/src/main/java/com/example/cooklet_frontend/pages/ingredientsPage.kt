@@ -18,6 +18,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Button
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -83,7 +84,9 @@ fun IngredientsPage(
                         aisleItems.entries.sortedBy { it.key}.forEach { (key, value) ->
                             Text(key,
                                 modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 8.dp),
-                                fontWeight = FontWeight.Black)
+                                fontWeight = FontWeight.Black,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
                             for (ingredient in value) {
                                 IngredientItem(
                                     ingredient.name,
@@ -123,12 +126,14 @@ fun IngredientsPage(
                         Icon(
                             Icons.AutoMirrored.Sharp.List,
                             contentDescription = null,
-                            Modifier.size(128.dp))
+                            Modifier.size(128.dp),
+                            tint = MaterialTheme.colorScheme.onSurface)
                         Spacer(Modifier.height(32.dp))
                         Text(modifier = Modifier.fillMaxWidth(0.75f),
                             textAlign = TextAlign.Center,
                             text = "No Recipe has been added. " +
-                                    "Click Add Recipe Ingredients to add one.")
+                                    "Click Add Recipe Ingredients to add one.",
+                            color = MaterialTheme.colorScheme.onSurface)
                     }
                 }
 

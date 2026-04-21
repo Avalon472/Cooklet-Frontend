@@ -4,11 +4,14 @@ import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -16,7 +19,10 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -27,8 +33,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -136,45 +144,115 @@ fun RecipeDetailsPage(
             contentScale = ContentScale.Crop,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(200.dp)
+                .height(220.dp)
+                .padding(vertical = 8.dp)
+                .clip(RoundedCornerShape(16.dp))
         )
 
         Text(
             recipe.title,
             fontSize = 28.sp,
-            textDecoration = TextDecoration.Underline
+            style = MaterialTheme.typography.headlineMedium,
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.padding(top = 12.dp),
+            fontWeight = FontWeight.Bold
         )
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text("${recipe.readyInMinutes ?: 0} Minutes")
-            Icon(Icons.Filled.Timer, contentDescription = null)
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(vertical = 4.dp)
+        ) {
+            Icon(
+                Icons.Filled.Timer,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary
+            )
+
+            Spacer(Modifier.width(6.dp))
+
+            Text(
+                text = "${recipe.readyInMinutes ?: 0} Minutes",
+                color = MaterialTheme.colorScheme.onSurface)
         }
 
-        Text("Ingredients", fontSize = 25.sp, textDecoration = TextDecoration.Underline)
-
-        Column(
-            modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(4.dp)
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceVariant
+            ),
+            elevation = CardDefaults.cardElevation(4.dp)
         ) {
-            recipe.extendedIngredients.forEach {
+            Column(modifier = Modifier.padding(12.dp)) {
+
+                Text(
+                    text = "Ingredients",
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.padding(top = 12.dp, bottom = 4.dp)
+                )
+
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    recipe.extendedIngredients.forEach {
 //                Text("- ${it.amount} ${it.unit} ${it.name}")
-                if(preferences.unitType == measurementUnit.METRIC){
-                    Text("- ${it.measures.metric.amount} ${it.measures.metric.unit} ${it.name}")
-                }else{
-                    Text("- ${it.measures.us.amount} ${it.measures.us.unit} ${it.name}")
+                        if(preferences.unitType == measurementUnit.METRIC){
+                            Text(
+                                text = "• ${it.measures.metric.amount} ${it.measures.metric.unit} ${it.name}",
+                                color = MaterialTheme.colorScheme.onSurface,
+                                modifier = Modifier.padding(vertical = 2.dp)
+                            )
+                        }else{
+                            Text(
+                                text = "• ${it.measures.us.amount} ${it.measures.us.unit} ${it.name}",
+                                color = MaterialTheme.colorScheme.onSurface,
+                                modifier = Modifier.padding(vertical = 2.dp)
+                            )
+                        }
+                    }
                 }
+
             }
         }
 
-        Text("Instructions", fontSize = 25.sp, textDecoration = TextDecoration.Underline)
-
-        Column(
-            modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(6.dp)
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceVariant
+            ),
+            elevation = CardDefaults.cardElevation(4.dp)
         ) {
-            recipe.analyzedInstructions.forEach {
-                Text("${it.number}. ${it.step}")
+            Column(modifier = Modifier.padding(12.dp)) {
+
+                Text(
+                    text = "Instructions",
+                    style = MaterialTheme.typography.titleLarge,
+                    textDecoration = TextDecoration.Underline,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.padding(top = 12.dp, bottom = 4.dp)
+                )
+
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    recipe.analyzedInstructions.forEach {
+                        Text(
+                            text = "${it.number}. ${it.step}",
+                            color = MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier.padding(vertical = 4.dp)
+                        )
+                    }
+                }
+
             }
         }
+
+
 
     }
 

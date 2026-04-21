@@ -18,6 +18,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -85,9 +86,9 @@ fun SearchResultsDialog(
                                     .clickable { selectedRecipe = result },
                                 colors = CardDefaults.cardColors(
                                     containerColor = if (result == selectedRecipe)
-                                        Color(0xFFE0E0E0)
+                                        MaterialTheme.colorScheme.surfaceVariant
                                     else
-                                        Color.White
+                                        MaterialTheme.colorScheme.surface
                                 ),
                                 elevation = CardDefaults.cardElevation(4.dp)
                             ) {
@@ -104,13 +105,20 @@ fun SearchResultsDialog(
                                     Text(
                                         text = result.title,
                                         fontSize = 20.sp,
-                                        fontWeight = FontWeight.Bold
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.onSurface
                                     )
 
                                     Spacer(modifier = Modifier.height(4.dp))
 
-                                    Text("Price Per Serving: $${"%.2f".format(result.pricePerServing ?: 0.0)}")
-                                    Text("⏱ ${result.readyInMinutes ?: 0} min")
+                                    Text(
+                                        text = "Price Per Serving: $${"%.2f".format(result.pricePerServing ?: 0.0)}",
+                                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                                    )
+                                    Text(
+                                        text = "⏱ ${result.readyInMinutes ?: 0} min",
+                                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                                    )
                                 }
                             }
 

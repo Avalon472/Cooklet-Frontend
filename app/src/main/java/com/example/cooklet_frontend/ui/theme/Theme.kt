@@ -14,14 +14,15 @@ import com.example.cooklet_frontend.ui.theme.Background
 import com.example.cooklet_frontend.ui.theme.PrimaryContainer
 
 private val DarkColorScheme = darkColorScheme(
-    primary = PrimaryTextDark,
+    primary = PrimaryContainer,
     secondary = PurpleGrey80,
-    tertiary = Pink80,
+    tertiary = PrimaryContainer,
     primaryContainer = PrimaryContainer,
-    background = Background,
+    background = Color(0xFF1E1E1E),
 
-    surface = Color.White,
-    onSurface = Color.Black,
+    surface = Color(0xFF1E1E1E),
+    onSurface = Color.White,
+    surfaceVariant = Color(0xFF2A2A2A),
 
     onPrimary = Color.White,
     onSecondary = Color.White,
@@ -32,12 +33,13 @@ private val DarkColorScheme = darkColorScheme(
 private val LightColorScheme = lightColorScheme(
     primary = PrimaryContainer,
     secondary = PurpleGrey40,
-    tertiary = Pink40,
+    tertiary = PrimaryContainer,
     primaryContainer = PrimaryContainer,
     background = Background,
 
     surface = Color.White,
     onSurface = Color.Black,
+    surfaceVariant = Color(0xFFF2F2F2),
 
     onPrimary = Color.White,
     onSecondary = Color.White,

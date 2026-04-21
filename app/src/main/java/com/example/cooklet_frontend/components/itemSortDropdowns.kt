@@ -9,6 +9,7 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -39,12 +40,16 @@ fun ingredientSortDropdown(preferencesViewModel: preferencesViewModel){
         Row(
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(text = selectedOptionText[selectedOption]!!, fontWeight = FontWeight.Bold)
+            Text(
+                text = selectedOptionText[selectedOption]!!, fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface
+            )
 
             IconButton(onClick = { expanded = !expanded }) {
                 Icon(
                     imageVector = Icons.Default.KeyboardArrowDown,
-                    contentDescription = "Sort options"
+                    contentDescription = "Sort options",
+                    tint = MaterialTheme.colorScheme.onSurface
                 )
             }
         }
@@ -90,12 +95,17 @@ fun recipeSortDropdown(preferencesViewModel: preferencesViewModel){
         Row(
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(text = selectedOptionText[selectedOption]!!, fontWeight = FontWeight.Bold)
+            Text(
+                text = selectedOptionText[selectedOption]!!,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface
+                )
 
             IconButton(onClick = { expanded = !expanded }) {
                 Icon(
                     imageVector = Icons.Default.KeyboardArrowDown,
-                    contentDescription = "Sort options"
+                    contentDescription = "Sort options",
+                    tint = MaterialTheme.colorScheme.onSurface
                 )
             }
         }

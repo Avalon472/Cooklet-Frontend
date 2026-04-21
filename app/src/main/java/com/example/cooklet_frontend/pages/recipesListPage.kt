@@ -17,6 +17,7 @@ import androidx.compose.material.icons.filled.ErrorOutline
 import androidx.compose.material.icons.filled.NoFood
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -122,26 +123,30 @@ fun RecipePage(
                             if (fetchError) {
                                 Icon(
                                     Icons.Filled.ErrorOutline, contentDescription = null,
-                                    Modifier.size(128.dp)
+                                    Modifier.size(128.dp),
+                                    tint = MaterialTheme.colorScheme.onSurface
                                 )
                                 Spacer(Modifier.height(32.dp))
                                 Text(
-                                    "An error occured while attempting to fetch recipes." +
+                                    "An error occurred while attempting to fetch recipes." +
                                             "Please verify you are connected to the internet and try again.",
                                     textAlign = TextAlign.Center,
-                                    modifier = Modifier.fillMaxWidth(0.75f)
+                                    modifier = Modifier.fillMaxWidth(0.75f),
+                                    color = MaterialTheme.colorScheme.onSurface
                                 )
                             } else {
                                 Icon(
                                     Icons.Filled.NoFood, contentDescription = null,
-                                    Modifier.size(128.dp)
+                                    Modifier.size(128.dp),
+                                    tint = MaterialTheme.colorScheme.onSurface
                                 )
                                 Spacer(Modifier.height(32.dp))
                                 Text(
                                     "No recipe has been created yet. " +
                                             "Head over to the create tab to make your first recipe!",
                                     textAlign = TextAlign.Center,
-                                    modifier = Modifier.fillMaxWidth(0.75f)
+                                    modifier = Modifier.fillMaxWidth(0.75f),
+                                    color = MaterialTheme.colorScheme.onSurface
                                 )
                             }
                         }

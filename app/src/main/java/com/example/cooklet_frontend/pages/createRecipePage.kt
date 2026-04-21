@@ -89,7 +89,8 @@ fun CreatePage(viewModel: RecipeViewModel, searchModel: SearchResultViewModel){
     ) {
         Text(
             text = "Add Recipe",
-            style = MaterialTheme.typography.headlineMedium
+            style = MaterialTheme.typography.headlineMedium,
+            color = MaterialTheme.colorScheme.onSurface
         )
 
         Spacer(modifier = Modifier.height(32.dp))
@@ -99,7 +100,7 @@ fun CreatePage(viewModel: RecipeViewModel, searchModel: SearchResultViewModel){
                 selectedRecipe = null
                 showEditorDialog = true
             },
-            border = BorderStroke(1.dp, Color.Black),
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.onSurface),
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Create Manually")
@@ -109,7 +110,7 @@ fun CreatePage(viewModel: RecipeViewModel, searchModel: SearchResultViewModel){
 
         OutlinedButton(
             onClick = { showSearchDialog = true },
-            border = BorderStroke(1.dp, Color.Black),
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.onSurface),
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Search Recipe")
