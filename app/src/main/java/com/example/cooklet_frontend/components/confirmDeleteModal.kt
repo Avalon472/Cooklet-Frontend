@@ -1,14 +1,8 @@
 package com.example.cooklet_frontend.components
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 
@@ -30,7 +24,7 @@ fun ConfirmDeleteModal(
                 Text("Cancel")
             }
         },
-        title = { Text("ATTENTION") },
+        title = { Text("Warning") },
         text = {
             Text("Are you sure you want to delete this recipe?")
         }

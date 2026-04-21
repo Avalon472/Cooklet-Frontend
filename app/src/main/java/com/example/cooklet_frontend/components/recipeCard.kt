@@ -3,6 +3,7 @@ package com.example.cooklet_frontend.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -28,7 +29,7 @@ import com.example.cooklet_frontend.models.Recipe
 
 
 @Composable
-fun RecipeCard(navController: NavController, recipe: Recipe){
+fun RecipeCard(navController: NavController?, recipe: Recipe){
     val request = ImageRequest.Builder(LocalContext.current)
         .data(recipe.image)
         .addHeader(
@@ -40,26 +41,41 @@ fun RecipeCard(navController: NavController, recipe: Recipe){
 
     Card(
         elevation = CardDefaults.cardElevation(10.dp),
-        onClick = { navController.navigate("RecipeDetails/${recipe._id}")}
+        onClick = { navController?.navigate("RecipeDetails/${recipe._id}") }
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
             modifier = Modifier.size(175.dp)
         ) {
-            Text(
-                recipe.title,
-                Modifier.fillMaxHeight(0.3f)
-                    .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.tertiary)
-                    .wrapContentHeight()
-                    .padding(horizontal = 4.dp),
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.onTertiary,
-                lineHeight = 25.sp,
-                fontSize = 25.sp,
-                overflow = TextOverflow.Ellipsis
-            )
+            Row(modifier = Modifier.fillMaxHeight(0.3f)
+                .background(MaterialTheme.colorScheme.tertiary)
+                .wrapContentHeight()
+                .padding(horizontal = 8.dp, vertical = 4.dp)){
+                Text(
+                    recipe.title,
+                    Modifier.fillMaxWidth(0.75f),
+                    textAlign = TextAlign.Left,
+                    color = MaterialTheme.colorScheme.onTertiary,
+                    lineHeight = 20.sp,
+                    fontSize = 20.sp,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Column(verticalArrangement = Arrangement.SpaceEvenly) {
+                    Text(
+                        text = "$${"%.2f".format(recipe.pricePerServing ?: 0.0)}",
+                        color = MaterialTheme.colorScheme.onTertiary,
+                        fontSize = 15.sp,
+                        textAlign = TextAlign.Right
+                    )
+                    Text(
+                        text = "⏱ ${recipe.readyInMinutes ?: 0} min",
+                        color = MaterialTheme.colorScheme.onTertiary,
+                        fontSize = 15.sp,
+                        textAlign = TextAlign.Right
+                    )
+                }
+            }
             AsyncImage(
                 model = request,
                 contentDescription = null,

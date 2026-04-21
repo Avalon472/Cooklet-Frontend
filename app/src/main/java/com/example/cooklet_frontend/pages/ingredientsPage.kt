@@ -17,6 +17,7 @@ import androidx.compose.material.icons.automirrored.sharp.List
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Button
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -36,8 +37,8 @@ import com.example.cooklet_frontend.api.ingredientSort
 import com.example.cooklet_frontend.api.ingredientViewModel
 import com.example.cooklet_frontend.api.preferencesViewModel
 import com.example.cooklet_frontend.components.IngredientItem
-import com.example.cooklet_frontend.components.ingredientSortDropdown
 import com.example.cooklet_frontend.components.SearchResultsDialog
+import com.example.cooklet_frontend.components.ingredientSortDropdown
 
 
 @Composable
@@ -83,10 +84,11 @@ fun IngredientsPage(
                     if(preferences.ingredientSortType == ingredientSort.AISLE){
                         aisleItems.entries.sortedBy { it.key}.forEach { (key, value) ->
                             Text(key,
-                                modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 8.dp),
+                                modifier = Modifier.padding(start = 16.dp, end = 16.dp),
                                 fontWeight = FontWeight.Black,
                                 color = MaterialTheme.colorScheme.onSurface
                             )
+                            HorizontalDivider(thickness = 2.dp, color = MaterialTheme.colorScheme.onSurface)
                             for (ingredient in value) {
                                 IngredientItem(
                                     ingredient.name,
@@ -98,6 +100,7 @@ fun IngredientsPage(
                                     }
                                 )
                             }
+                            HorizontalDivider(thickness = 2.dp, color = MaterialTheme.colorScheme.onSurface)
                         }
                     }
                     else{
@@ -106,6 +109,7 @@ fun IngredientsPage(
                                 list.map { value -> value to key }
                             }
                             .toMap()
+                        HorizontalDivider(thickness = 1.dp, color = MaterialTheme.colorScheme.onSurface)
                         aisleItems.values.flatten().sortedBy{it.name}.forEach { ingredient ->
                                 IngredientItem(
                                     ingredient.name,
@@ -116,7 +120,9 @@ fun IngredientsPage(
                                         ingredientViewModel.toggleIngredient(inverted[ingredient]!!, ingredient.name, checked)
                                     }
                                 )
+                            HorizontalDivider(thickness = 1.dp, color = MaterialTheme.colorScheme.onSurface)
                         }
+                        Spacer(modifier = Modifier.height(100.dp))
                     }
 
                 }else{

@@ -29,7 +29,10 @@ class SearchResultViewModel : ViewModel() {
                     _searchResults.value = body ?: emptyList()
                     _state.value = "Query successful!"
 
-                } else {
+                } else if (response.code() == 429) {
+                    _state.value = "Request Limit Reached"
+                }
+                else {
                     _state.value = "Internal Server Error"
                 }
 

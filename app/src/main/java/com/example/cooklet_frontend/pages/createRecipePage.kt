@@ -21,7 +21,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.example.cooklet_frontend.api.RecipeViewModel
@@ -68,6 +67,15 @@ fun CreatePage(viewModel: RecipeViewModel, searchModel: SearchResultViewModel){
             ).show()
             showEditorDialog = true;
             creatingRecipe = false;
+        }
+        else if(recipeState == "Request Limit Reached"){
+            viewModel.resetState()
+            Toast.makeText(
+                context,
+                "This application has hit its search limit. " +
+                        "The search allotment will be reset at 12am Central Time.",
+                Toast.LENGTH_SHORT
+            ).show()
         }
         else if(recipeState != "Idle" && recipeState != "Loading..." && recipeState != "Fetch success!"){
             viewModel.resetState()

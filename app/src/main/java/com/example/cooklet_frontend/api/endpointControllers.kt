@@ -2,7 +2,6 @@ package com.example.cooklet_frontend.api
 
 import com.example.cooklet_frontend.models.Recipe
 import com.example.cooklet_frontend.models.newRecipePayload
-import retrofit2.Call
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory

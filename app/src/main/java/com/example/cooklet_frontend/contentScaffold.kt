@@ -7,12 +7,13 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.automirrored.filled.MenuBook
@@ -37,13 +38,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -52,8 +49,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.cooklet_frontend.api.IngredientViewModelFactory
-import com.example.cooklet_frontend.api.PreferencesViewModelFactory
 import com.example.cooklet_frontend.api.RecipeViewModel
 import com.example.cooklet_frontend.api.SearchResultViewModel
 import com.example.cooklet_frontend.api.ingredientViewModel
@@ -102,11 +97,11 @@ fun AppHeader(navController: NavController, preferencesViewModel: preferencesVie
 
     Box(
         modifier = Modifier
-            .height(80.dp)
+            .height(100.dp)
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.primaryContainer)
             .statusBarsPadding()
-            .padding(bottom = 8.dp)
+            .padding(bottom = 4.dp)
     ) {
         Box(
             modifier = Modifier
@@ -116,8 +111,7 @@ fun AppHeader(navController: NavController, preferencesViewModel: preferencesVie
             Image(
                 painterResource(id = R.drawable.cooklet_logo),
                 contentDescription = "Cooklet Logo",
-                modifier = Modifier.size(30.dp),
-                contentScale = ContentScale.Fit
+                modifier = Modifier .size(100.dp),
                 )
         }
 
@@ -172,6 +166,7 @@ fun AppHeader(navController: NavController, preferencesViewModel: preferencesVie
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Text("Metric Units")
+                            Spacer(modifier = Modifier.width(4.dp))
                             Switch(
                                 checked = preferences.unitType == measurementUnit.METRIC,
                                 onCheckedChange = { preferencesViewModel.changeUnitPreference() }

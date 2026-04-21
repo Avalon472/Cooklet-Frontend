@@ -1,23 +1,29 @@
 package com.example.cooklet_frontend.api
 
-import android.util.Log
-import android.widget.Toast
-import androidx.compose.ui.platform.LocalContext
+import android.content.Context
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.example.cooklet_frontend.localStorage.recipeStorage
 import com.example.cooklet_frontend.models.Recipe
 import com.example.cooklet_frontend.models.newRecipePayload
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class RecipeViewModel : ViewModel() {
+class RecipeViewModel(
+    private val context: Context
+) : ViewModel() {
 
     private val _state = MutableStateFlow("Idle")
     val state: StateFlow<String> = _state
 
-    private val _recipes = MutableStateFlow<List<Recipe>>(emptyList())
+    private val _recipes = MutableStateFlow<List<Recipe>>(recipeStorage.load(context))
     val recipes: StateFlow<List<Recipe>> = _recipes
+
+    private fun save() {
+        recipeStorage.save(context, _recipes.value)
+    }
 
     fun fetchRecipes(){
         viewModelScope.launch {
@@ -32,6 +38,8 @@ class RecipeViewModel : ViewModel() {
 
                     _recipes.value = body ?: emptyList()
                     _state.value = "Fetch success!"
+
+                    save()
 
                 } else {
                     _state.value = "Exception: Internal Server Error"
@@ -52,7 +60,6 @@ class RecipeViewModel : ViewModel() {
                 val response = RetrofitInstance.api.createRecipe(recipe)
 
                 if (response.isSuccessful) {
-                    fetchRecipes()
                     _state.value = "Recipe created!"
                 } else {
                     _state.value = "Error Creating Recipe"
@@ -104,5 +111,14 @@ class RecipeViewModel : ViewModel() {
 
     fun resetState(){
         _state.value = "Idle"
+    }
+}
+
+class RecipeViewModelFactory(
+    private val context: Context
+) : ViewModelProvider.Factory {
+
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        return RecipeViewModel(context.applicationContext) as T
     }
 }

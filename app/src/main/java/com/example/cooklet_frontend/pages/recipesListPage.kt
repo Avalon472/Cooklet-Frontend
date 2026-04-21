@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -33,7 +34,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.cooklet_frontend.api.RecipeViewModel
-import com.example.cooklet_frontend.api.preferences
 import com.example.cooklet_frontend.api.preferencesViewModel
 import com.example.cooklet_frontend.api.recipeSort
 import com.example.cooklet_frontend.components.RecipeCard
@@ -74,7 +74,7 @@ fun RecipePage(
             viewModel.resetState()
             Toast.makeText(
                 context,
-                "Failed to fetch recipes.",
+                "Failed to fetch recipes. Displaying most recent saved results.",
                 Toast.LENGTH_SHORT
             ).show()
             fetchError = true;
@@ -82,10 +82,14 @@ fun RecipePage(
         }
     }
     LazyColumn(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         item{
-            recipeSortDropdown(preferencesViewModel)
+            Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
+                recipeSortDropdown(preferencesViewModel)
+            }
+
         }
         item {
             FlowRow(

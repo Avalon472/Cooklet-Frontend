@@ -3,7 +3,6 @@ package com.example.cooklet_frontend.api
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.example.cooklet_frontend.localStorage.ingredientStorage
 import com.example.cooklet_frontend.localStorage.preferencesStorage
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
