@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -39,7 +40,7 @@ import com.example.cooklet_frontend.models.newRecipeInstruction
 import com.example.cooklet_frontend.models.newRecipeMeasurement
 import com.example.cooklet_frontend.models.newRecipeMeasures
 import com.example.cooklet_frontend.models.newRecipePayload
-
+import com.example.cooklet_frontend.utils.convertToMeasures
 
 val defaultRecipePayload = newRecipePayload(
     title = "N/A",
@@ -115,6 +116,10 @@ fun RecipeEditorDialog(
         "dash", ""
     )
 
+    val isValid = recipeState.title.isNotBlank() &&
+            ingredients.any { it.name.isNotBlank() } &&
+            instructions.any { it.step.isNotBlank() }
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("$type Recipe") },
@@ -122,7 +127,7 @@ fun RecipeEditorDialog(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .heightIn(max = 400.dp)
+                    .fillMaxHeight(0.8f)
                     .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
@@ -315,10 +320,13 @@ fun RecipeEditorDialog(
                     extendedIngredients = ingredients
                         .filter { it.name.isNotBlank() }
                         .mapIndexed { i, ing ->
+
+                            val measures = convertToMeasures(ing.amount, ing.unit)
                             ing.copy(
                                 id = i,
                                 amount = ing.amount,
-                                unit = ing.unit
+                                unit = ing.unit,
+                                measures = measures
                             )
                         },
 
@@ -330,7 +338,9 @@ fun RecipeEditorDialog(
                 )
 
                 onSubmit(finalRecipe)
-            }) {
+            },
+                enabled = isValid
+            ) {
                 Text("Save Recipe")
             }
         },
